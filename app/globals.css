@@ -120,3 +120,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* animate the highligh of the newly added plant in the table */
+@keyframes highlight {
+  0% {
+    background-color: #d1fae5;
+  } /* зелений */
+  100% {
+    background-color: transparent;
+  }
+}
+
+/* animate the highligh of the newly added plant in the table */
+.animate-highlight {
+  animation: highlight 2s ease-out;
+}
