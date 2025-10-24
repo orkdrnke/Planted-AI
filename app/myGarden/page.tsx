@@ -14,14 +14,18 @@ import {
 import Link from "next/link";
 import { usePlantStore } from "@/lib/store/plantsStore";
 import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 function PlantsTable() {
   const plants = usePlantStore((state) => state.plants);
-  const store = usePlantStore();
   const newPlantId = usePlantStore((state) => state.newPlantId);
   const clearNewPlantId = usePlantStore((state) => state.clearNewPlantId);
   const highlightRef = useRef<HTMLTableRowElement | null>(null);
-  console.log("🚀 ~ PlantsTable ~ store:", store);
+  const router = useRouter();
+
+  const redirectToPlant = (id: string) => {
+    router.push(`/myGarden/${id}`);
+  };
 
   useEffect(() => {
     if (highlightRef.current) {
@@ -52,6 +56,8 @@ function PlantsTable() {
           <TableRow
             key={plant.name}
             ref={plant.id === newPlantId ? highlightRef : null}
+            onClick={() => redirectToPlant(plant.id!)}
+            className="cursor-pointer hover:bg-muted"
           >
             <TableCell className="font-medium">{plant.name}</TableCell>
             <TableCell>{plant.type}</TableCell>

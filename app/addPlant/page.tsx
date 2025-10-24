@@ -24,20 +24,12 @@ import { z } from "zod";
 import { usePlantStore } from "@/lib/store/plantsStore";
 import { PLANT_TYPES } from "@/lib/mockdata";
 import { useRouter } from "next/navigation";
-
-export const FormSchema = z.object({
-  name: z.string().min(3, { message: "too short" }),
-  type: z.string().min(5, { message: "min 5 chars" }),
-  size: z.string(),
-  amount: z.string(),
-  price: z.string(),
-  dest: z.string().min(5, { message: "min 5 chars" }),
-});
-export type TPlant = z.infer<typeof FormSchema> & { id?: string };
+import { PlantFormSchema } from "@/schemas/plantFormSchema";
+// import { generatePlantCareTips } from "@/lib/aiHelpers";
 
 export default function AddPlantForm() {
   const form = useForm({
-    resolver: zodResolver(FormSchema),
+    resolver: zodResolver(PlantFormSchema),
     defaultValues: {
       name: "",
       type: "",
@@ -45,16 +37,34 @@ export default function AddPlantForm() {
       amount: "",
       price: "",
       dest: "",
+      dateAdded: "",
     },
   });
   const { control } = form;
   const addPlant = usePlantStore((store) => store.addPlant);
+  const updatePlant = usePlantStore((store) => store.updatePlant);
   const router = useRouter();
 
-  function onSubmit(data: z.output<typeof FormSchema>) {
-    console.log("🚀 ~ onSubmit ~ data:", data);
-    addPlant(data);
+  async function onSubmit(data: z.output<typeof PlantFormSchema>) {
+    console.log("onSubmit");
+    const plantWithId = {
+      ...data,
+      id: crypto.randomUUID(),
+    };
+    addPlant(plantWithId);
     router.replace("/myGarden");
+
+    // try {
+    //   const aiData = await generatePlantCareTips({
+    //     name: plantWithId.name,
+    //     type: plantWithId.type,
+    //     location: plantWithId.dest,
+    //   });
+
+    //   updatePlant(plantWithId.id, aiData);
+    // } catch (error) {
+    //   console.error("Error generating plant care tips:", error);
+    // }
   }
 
   return (
@@ -160,6 +170,22 @@ export default function AddPlantForm() {
                   <Input placeholder="price" {...field} />
                 </FormControl>
                 <FormDescription>How much did it cost</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="dateAdded"
+            render={({ field }) => (
+              <FormItem className="py-2">
+                <FormLabel>Date Added</FormLabel>
+                <FormControl>
+                  <Input type="date" placeholder="date added" {...field} />
+                </FormControl>
+                <FormDescription>
+                  When did you add this plant to your collection?
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
