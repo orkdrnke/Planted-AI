@@ -25,7 +25,6 @@ import { usePlantStore } from "@/lib/store/plantsStore";
 import { PLANT_TYPES } from "@/lib/mockdata";
 import { useRouter } from "next/navigation";
 import { PlantFormSchema } from "@/schemas/plantFormSchema";
-// import { generatePlantCareTips } from "@/lib/aiHelpers";
 
 export default function AddPlantForm() {
   const form = useForm({
@@ -42,29 +41,11 @@ export default function AddPlantForm() {
   });
   const { control } = form;
   const addPlant = usePlantStore((store) => store.addPlant);
-  const updatePlant = usePlantStore((store) => store.updatePlant);
   const router = useRouter();
 
   async function onSubmit(data: z.output<typeof PlantFormSchema>) {
-    console.log("onSubmit");
-    const plantWithId = {
-      ...data,
-      id: crypto.randomUUID(),
-    };
-    addPlant(plantWithId);
+    addPlant(data);
     router.replace("/myGarden");
-
-    // try {
-    //   const aiData = await generatePlantCareTips({
-    //     name: plantWithId.name,
-    //     type: plantWithId.type,
-    //     location: plantWithId.dest,
-    //   });
-
-    //   updatePlant(plantWithId.id, aiData);
-    // } catch (error) {
-    //   console.error("Error generating plant care tips:", error);
-    // }
   }
 
   return (

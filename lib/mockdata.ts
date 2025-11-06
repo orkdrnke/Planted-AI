@@ -24,7 +24,7 @@ export const plants: TPlant[] = [
     dest: DEST.in,
     amount: "1",
     id: "01",
-    dateAdded: new Date(),
+    dateAdded: new Date().toString(),
   },
   {
     name: "Tulips",
@@ -34,7 +34,7 @@ export const plants: TPlant[] = [
     dest: DEST.in,
     amount: "2",
     id: "02",
-    dateAdded: new Date(),
+    dateAdded: new Date().toString(),
   },
   {
     name: "Oleandr",
@@ -44,7 +44,7 @@ export const plants: TPlant[] = [
     dest: DEST.out,
     amount: "3",
     id: "03",
-    dateAdded: new Date(),
+    dateAdded: new Date().toString(),
   },
   {
     name: "Rubber Tree",
@@ -54,7 +54,7 @@ export const plants: TPlant[] = [
     dest: DEST.in,
     amount: "3",
     id: "04",
-    dateAdded: new Date(),
+    dateAdded: new Date().toString(),
   },
   {
     name: "Palm tree",
@@ -64,7 +64,7 @@ export const plants: TPlant[] = [
     dest: DEST.out,
     amount: "10",
     id: "05",
-    dateAdded: new Date(),
+    dateAdded: new Date().toString(),
   },
   {
     name: "Strawberry",
@@ -74,7 +74,7 @@ export const plants: TPlant[] = [
     dest: DEST.out,
     amount: "23",
     id: "06",
-    dateAdded: new Date(),
+    dateAdded: new Date().toString(),
   },
   {
     name: "Chili",
@@ -84,6 +84,6 @@ export const plants: TPlant[] = [
     dest: DEST.in,
     amount: "4",
     id: "07",
-    dateAdded: new Date(),
+    dateAdded: new Date().toString(),
   },
 ];
