@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { usePlantStore } from "@/lib/store/plantsStore";
 import { Card } from "@/components/ui/card";
 import { TPlant } from "@/types/plant";
+import Image from "next/image";
 
 export default function PlantDetailPage() {
   const { id } = useParams();
@@ -17,11 +18,15 @@ export default function PlantDetailPage() {
       <div className="lg:col-span-2 space-y-6">
         {/* Photo */}
         <Card className="overflow-hidden rounded-2xl shadow-md">
-          <img
-            src={plant.image || "/placeholder-plant.jpg"}
-            alt={plant.name}
-            className="w-full h-72 object-cover"
-          />
+          <div style={{ width: 200, height: 200 }}>
+            <Image
+              src={`/img/${plant.type}.png`}
+              alt={plant.name}
+              width={200}
+              height={200}
+              style={{ width: 200, height: 200, objectFit: "contain" }}
+            />
+          </div>
         </Card>
 
         {/* Details */}
@@ -34,6 +39,26 @@ export default function PlantDetailPage() {
             <Section
               label="Watering Tips"
               value={plant.wateringFrequency || "No tips available"}
+            />
+            <Section
+              label="Light Requirements"
+              value={plant.sunlightNeeds || "No tips available"}
+            />
+            <Section
+              label="Temperature Range"
+              value={plant.temperatureRange || "No tips available"}
+            />
+            <Section
+              label="Soil Type"
+              value={plant.soilType || "No tips available"}
+            />
+            <Section
+              label="Care Tips"
+              value={
+                plant.careTips && plant.careTips.length > 0
+                  ? plant.careTips.join(", ")
+                  : "No tips available"
+              }
             />
           </div>
         </Card>
