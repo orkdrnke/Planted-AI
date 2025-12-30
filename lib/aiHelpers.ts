@@ -13,8 +13,6 @@ const CareTips = z.object({
   careTips: z.array(z.string()),
 });
 
-console.log("OpenAI API Key Loaded:", process.env.OPENAI_API_KEY);
-
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function generatePlantCareTips(params: {

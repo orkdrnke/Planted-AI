@@ -73,7 +73,6 @@ export default function AddPlantForm() {
             control={control}
             name="type"
             render={({ field }) => {
-              console.log("field", field);
               return (
                 <FormItem className="py-2">
                   <FormLabel>Plant Type</FormLabel>

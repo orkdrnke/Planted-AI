@@ -56,7 +56,9 @@ export default function PlantDetailPage() {
               label="Care Tips"
               value={
                 plant.careTips && plant.careTips.length > 0
-                  ? plant.careTips.join(", ")
+                  ? plant.careTips
+                      .map((tip) => `• ${tip.split("").slice(0, -1).join("")}`)
+                      .join("\n")
                   : "No tips available"
               }
             />
@@ -99,7 +101,7 @@ function Section({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-gray-50 p-4 rounded-lg">
       <h3 className="font-medium text-gray-700 ">{label}</h3>
-      <p className="text-gray-500 italic">{value}</p>
+      <p className="text-gray-500 italic whitespace-pre-line">{value}</p>
     </div>
   );
 }

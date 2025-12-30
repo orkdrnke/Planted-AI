@@ -4,13 +4,6 @@ import { generatePlantCareTips } from "@/lib/aiHelpers";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    console.log("🚀 ~ body:", body);
-
-    // TODO: make sure we can pass type and dest as optional params
-    // if (!body?.name || !body?.type || !body?.dest) {
-    //     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
-    // }
-
     const tips = await generatePlantCareTips(body);
     return NextResponse.json(tips);
   } catch (error) {
