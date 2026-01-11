@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+.gitconfig.orkdrnke
 
 # debug
 npm-debug.log*
