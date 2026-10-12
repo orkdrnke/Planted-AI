@@ -29,33 +29,21 @@ export async function generatePlantCareTips(params: {
     dest: "${dest ?? "unspecified"}"
 `;
 
-  const response = await openai.responses.create({
-    model: "gpt-4o-mini",
-    input: prompt,
-    temperature: 0.1,
-    max_output_tokens: 200,
-    text: {
-      format: zodTextFormat(CareTips, "care_tips"),
-    },
-  });
-
   try {
-    // try SDK-parsed variant (if SDK provides it after zodTextFormat)
-    const parsedFromSdk = (response as any).output_parsed?.care_tips;
-    if (parsedFromSdk) {
-      return CareTips.parse(parsedFromSdk);
-    }
+    // responses.parse() validates the output against the Zod schema
+    const response = await openai.responses.parse({
+      model: "gpt-4o-mini",
+      input: prompt,
+      temperature: 0.1,
+      max_output_tokens: 200,
+      text: {
+        format: zodTextFormat(CareTips, "care_tips"),
+      },
+    });
 
-    // fallback: attempt to find text content and JSON.parse it
-    const textContent =
-      response.output?.[0]?.content?.find((c: any) => c.type === "output_text")
-        ?.text || response.output?.[0]?.content?.[0]?.text;
+    if (!response.output_parsed) throw new Error("No parsed output in response");
 
-    if (!textContent) throw new Error("No text content in response");
-
-    // The model should return a JSON-like string matching the schema
-    const parsed = JSON.parse(textContent);
-    return CareTips.parse(parsed);
+    return response.output_parsed;
   } catch (err) {
     console.error("AI parsing/validation error:", err);
     // return empty safe fallback (or throw depending on your app flow)

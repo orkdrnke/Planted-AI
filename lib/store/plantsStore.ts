@@ -27,7 +27,7 @@ export const usePlantStore = create<TPlantState>()(
 
       // Fetch AI tips in background
       (async () => {
-        const response = await fetch("api/ai-care-guide", {
+        const response = await fetch("/api/ai-care-guide", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
