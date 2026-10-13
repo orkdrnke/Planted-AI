@@ -8,6 +8,10 @@ export type TPlant = {
   amount: string;
   dest?: string;
 
+  // AI generation state
+  aiStatus?: "generating" | "ready" | "error";
+  aiError?: string;
+
   // AI-generated info
   botanicalName?: string;
   wateringFrequency?: string;

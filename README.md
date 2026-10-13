@@ -76,13 +76,15 @@ components/
 
 lib/
 ├── aiHelpers.ts
+├── constants.ts
 ├── mockdata.ts
 ├── utils.ts
 └── store/
     └── plantsStore.ts
 
 schemas/
-└── plantFormSchema.ts
+├── plantFormSchema.ts
+└── careTipsSchema.ts
 
 types/
 ├── plant.ts
@@ -113,19 +115,19 @@ components.json
 ### AI care recommendations
 
 - AI recommendations are requested in the background right after a plant is added.
-- The request is sent from the `addPlant` store action to `POST /api/ai-care-guide`.
+- The request is sent from the `generateCareTips` store action (called by `addPlant`) to `POST /api/ai-care-guide`.
 - The API route validates the request body with Zod and calls `generatePlantCareTips` in `lib/aiHelpers.ts`.
 - Structured output is defined using Zod and `zodTextFormat`.
-- The result is merged into the corresponding plant in Zustand via `updatePlant`.
+- The result is validated on the client and only the AI fields are merged into the corresponding plant. Each plant tracks `aiStatus` (`generating`, `ready`, `error`).
 
 The data flow is:
 
 1. The user submits the plant form.
 2. `addPlant` generates a `uuid` and adds the plant to Zustand immediately.
-3. `addPlant` sends `name`, `type`, and `dest` to `/api/ai-care-guide`.
+3. `generateCareTips` sets `aiStatus: "generating"` and sends `name`, `type`, and `dest` to `/api/ai-care-guide`.
 4. The route validates the input (`400` on invalid input) and calls the OpenAI API through the helper.
-5. The API returns structured plant care data (or `null` if the AI output could not be parsed).
-6. The corresponding plant is updated in Zustand by its `id`.
+5. The API returns structured plant care data (or `502` if the AI response is incomplete or could not be parsed).
+6. The corresponding plant is updated in Zustand by its `id` (`aiStatus: "ready"`, or `"error"` with `aiError`).
 7. React components reflect the updated state.
 
 The application remains usable while AI recommendations are being generated.
@@ -144,8 +146,9 @@ The application remains usable while AI recommendations are being generated.
 
 - `plants` — the collection, initially seeded with mock data from `lib/mockdata.ts`.
 - `newPlantId` — the ID of the most recently added plant, used for row highlighting.
-- `addPlant` — adds a plant, generates its ID, and starts the AI request.
+- `addPlant` — adds a plant, generates its ID, and calls `generateCareTips`.
 - `updatePlant` — merges partial data into a plant by ID.
+- `generateCareTips` — requests AI care tips for a plant and tracks `aiStatus` / `aiError`; also used for retries.
 - `removePlant` — removes a plant by ID.
 - `clearNewPlantId` — resets `newPlantId`.
 
@@ -157,7 +160,7 @@ Store types live in `types/store.ts`, plant types in `types/plant.ts`.
 - OpenAI client initialization and API calls live in `lib/aiHelpers.ts`, which does not depend on React or Zustand.
 - The frontend communicates with the AI only through the Next.js API route.
 
-The care tips schema in `lib/aiHelpers.ts` contains `name`, `botanicalName`, `wateringFrequency`, `sunlightNeeds`, `soilType`, `temperatureRange`, and `careTips`.
+The care tips schema in `schemas/careTipsSchema.ts` is shared by the server and the client. It contains `botanicalName`, `wateringFrequency`, `sunlightNeeds`, `soilType`, `temperatureRange`, and `careTips`.
 
 ## Plant Data Model
 
@@ -178,7 +181,7 @@ The `TPlant` type (`types/plant.ts`) contains:
 - **No persistence.** All plant data lives in Zustand. A full page reload resets the collection to the mock data; data is not shared across browsers or devices.
 - **No authentication.** There are no user accounts or multi-user data isolation.
 - **No background jobs.** AI generation is an in-browser async request, not a durable background process.
-- **No complete error and retry workflow.** There is no per-plant AI status, no visible error state, and no retry.
+- **No complete error and retry workflow in the UI.** The store tracks a per-plant AI status and supports retries, but the UI does not show loading or error states and has no Retry button yet.
 - **No guaranteed AI accuracy.** AI recommendations are suggestions, not verified horticultural facts.
 
 ## Recommended Next Steps

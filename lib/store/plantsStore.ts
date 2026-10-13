@@ -2,8 +2,25 @@ import { create } from "zustand";
 import { plants as mockPlants } from "@/lib/mockdata";
 import { v4 as uuidv4 } from "uuid";
 import { TPlantState } from "@/types/store";
-import { TPlant } from "@/types/plant";
 import { devtools } from "zustand/middleware";
+import { CareTipsSchema } from "@/schemas/careTipsSchema";
+
+async function getErrorMessage(response: Response) {
+  try {
+    const body: unknown = await response.json();
+    if (
+      body &&
+      typeof body === "object" &&
+      "error" in body &&
+      typeof body.error === "string"
+    ) {
+      return body.error;
+    }
+  } catch {
+    // Non-JSON error body
+  }
+  return `Request failed with status ${response.status}`;
+}
 
 export const usePlantStore = create<TPlantState>()(
   devtools((set, get) => ({
@@ -16,18 +33,22 @@ export const usePlantStore = create<TPlantState>()(
         ),
       })),
 
-    addPlant: (plant) => {
-      const newPlantId = uuidv4();
-      const newPlant = { ...plant, id: newPlantId };
+    generateCareTips: async (id) => {
+      const plant = get().plants.find((p) => p.id === id);
+      // Skip unknown plants and prevent duplicate requests
+      if (!plant || plant.aiStatus === "generating") return;
 
-      set((state) => ({
-        plants: [...state.plants, newPlant],
-        newPlantId: newPlantId,
-      }));
+      get().updatePlant(id, { aiStatus: "generating", aiError: undefined });
 
-      // Fetch AI tips in background
-      (async () => {
-        const response = await fetch("/api/ai-care-guide", {
+      const setError = (aiError: string) => {
+        // The plant may have been removed while the request was pending
+        if (!get().plants.some((p) => p.id === id)) return;
+        get().updatePlant(id, { aiStatus: "error", aiError });
+      };
+
+      let response: Response;
+      try {
+        response = await fetch("/api/ai-care-guide", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -38,14 +59,46 @@ export const usePlantStore = create<TPlantState>()(
             dest: plant.dest,
           }),
         });
+      } catch {
+        setError("Network error. Please try again.");
+        return;
+      }
 
-        if (response.ok) {
-          const tips: Partial<TPlant> = await response.json();
-          if (tips) {
-            get().updatePlant(newPlantId, tips);
-          }
-        }
-      })();
+      if (!response.ok) {
+        setError(await getErrorMessage(response));
+        return;
+      }
+
+      let body: unknown;
+      try {
+        body = await response.json();
+      } catch {
+        setError("AI returned an invalid response");
+        return;
+      }
+
+      // Parsing strips unknown keys, so only AI fields are merged
+      const tips = CareTipsSchema.safeParse(body);
+      if (!tips.success) {
+        setError("AI returned an invalid response");
+        return;
+      }
+
+      if (!get().plants.some((p) => p.id === id)) return;
+      get().updatePlant(id, { ...tips.data, aiStatus: "ready" });
+    },
+
+    addPlant: (plant) => {
+      const newPlantId = uuidv4();
+      const newPlant = { ...plant, id: newPlantId };
+
+      set((state) => ({
+        plants: [...state.plants, newPlant],
+        newPlantId: newPlantId,
+      }));
+
+      // Fetch AI tips in background
+      void get().generateCareTips(newPlantId);
     },
     removePlant: (id) =>
       set((state) => ({ plants: state.plants.filter((p) => p.id !== id) })),

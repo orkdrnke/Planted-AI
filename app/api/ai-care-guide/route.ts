@@ -26,6 +26,12 @@ export async function POST(req: NextRequest) {
 
   try {
     const tips = await generatePlantCareTips(input.data);
+    if (!tips) {
+      return NextResponse.json(
+        { error: "AI returned an invalid response" },
+        { status: 502 }
+      );
+    }
     return NextResponse.json(tips);
   } catch (error) {
     console.error("AI care guide error:", error);

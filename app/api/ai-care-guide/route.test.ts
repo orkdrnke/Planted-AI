@@ -10,7 +10,6 @@ vi.mock("@/lib/aiHelpers", () => ({
 const mockedGenerate = vi.mocked(generatePlantCareTips);
 
 const careTips = {
-  name: "Monstera",
   botanicalName: "Monstera deliciosa",
   wateringFrequency: "Once a week",
   sunlightNeeds: "Bright indirect light",
@@ -67,13 +66,15 @@ describe("POST /api/ai-care-guide", () => {
     expect(mockedGenerate).toHaveBeenCalledWith(input);
   });
 
-  it("returns 200 with null when the AI output could not be parsed", async () => {
+  it("returns 502 when the AI output could not be parsed", async () => {
     mockedGenerate.mockResolvedValue(null);
 
     const res = await POST(makeRequest(JSON.stringify({ name: "Monstera" })));
 
-    expect(res.status).toBe(200);
-    expect(await res.json()).toBeNull();
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({
+      error: "AI returned an invalid response",
+    });
   });
 
   it("returns 500 with a safe message when the helper throws", async () => {

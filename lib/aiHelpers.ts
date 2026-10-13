@@ -1,17 +1,6 @@
 import OpenAI from "openai";
-import { z } from "zod";
 import { zodTextFormat } from "openai/helpers/zod";
-
-// Zod schema for the structured care tips
-const CareTips = z.object({
-  name: z.string(),
-  botanicalName: z.string(),
-  wateringFrequency: z.string(),
-  sunlightNeeds: z.string(),
-  soilType: z.string(),
-  temperatureRange: z.string(),
-  careTips: z.array(z.string()),
-});
+import { CareTipsSchema, TCareTips } from "@/schemas/careTipsSchema";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -19,7 +8,7 @@ export async function generatePlantCareTips(params: {
   name: string;
   type?: string;
   dest?: string;
-}) {
+}): Promise<TCareTips | null> {
   const { name, type, dest } = params;
 
   const prompt = `
@@ -35,18 +24,25 @@ export async function generatePlantCareTips(params: {
       model: "gpt-4o-mini",
       input: prompt,
       temperature: 0.1,
-      max_output_tokens: 200,
+      max_output_tokens: 600,
       text: {
-        format: zodTextFormat(CareTips, "care_tips"),
+        format: zodTextFormat(CareTipsSchema, "care_tips"),
       },
     });
 
+    if (response.status !== "completed") {
+      throw new Error(
+        `Response not completed: ${response.status ?? "unknown"} (${
+          response.incomplete_details?.reason ?? "no details"
+        })`
+      );
+    }
     if (!response.output_parsed) throw new Error("No parsed output in response");
 
     return response.output_parsed;
   } catch (err) {
     console.error("AI parsing/validation error:", err);
-    // return empty safe fallback (or throw depending on your app flow)
+    // The route turns null into a 502 response
     return null;
   }
 }

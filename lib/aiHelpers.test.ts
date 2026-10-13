@@ -10,7 +10,6 @@ vi.mock("openai", () => ({
 }));
 
 const careTips = {
-  name: "Monstera",
   botanicalName: "Monstera deliciosa",
   wateringFrequency: "Once a week",
   sunlightNeeds: "Bright indirect light",
@@ -26,7 +25,7 @@ describe("generatePlantCareTips", () => {
   });
 
   it("returns the parsed output", async () => {
-    parseMock.mockResolvedValue({ output_parsed: careTips });
+    parseMock.mockResolvedValue({ status: "completed", output_parsed: careTips });
 
     const result = await generatePlantCareTips({ name: "Monstera" });
 
@@ -37,7 +36,7 @@ describe("generatePlantCareTips", () => {
   });
 
   it("passes plant info to the prompt", async () => {
-    parseMock.mockResolvedValue({ output_parsed: careTips });
+    parseMock.mockResolvedValue({ status: "completed", output_parsed: careTips });
 
     await generatePlantCareTips({
       name: "Monstera",
@@ -53,9 +52,28 @@ describe("generatePlantCareTips", () => {
 
   it("returns null when output_parsed is empty", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
-    parseMock.mockResolvedValue({ output_parsed: null });
+    parseMock.mockResolvedValue({ status: "completed", output_parsed: null });
 
     expect(await generatePlantCareTips({ name: "Monstera" })).toBeNull();
+  });
+
+  it("returns null when the response is incomplete", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    parseMock.mockResolvedValue({
+      status: "incomplete",
+      incomplete_details: { reason: "max_output_tokens" },
+      output_parsed: careTips,
+    });
+
+    expect(await generatePlantCareTips({ name: "Monstera" })).toBeNull();
+  });
+
+  it("uses a token limit that fits the full care tips", async () => {
+    parseMock.mockResolvedValue({ status: "completed", output_parsed: careTips });
+
+    await generatePlantCareTips({ name: "Monstera" });
+
+    expect(parseMock.mock.calls[0][0].max_output_tokens).toBeGreaterThanOrEqual(600);
   });
 
   it("returns null when the OpenAI call fails", async () => {

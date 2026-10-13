@@ -5,6 +5,7 @@ export type TPlantState = {
   newPlantId: string | null;
   addPlant: (plant: Omit<TPlant, "id">) => void;
   updatePlant: (id: string, data: Partial<TPlant>) => void;
+  generateCareTips: (id: string) => Promise<void>;
   removePlant: (id: string) => void;
   clearNewPlantId: () => void;
 };

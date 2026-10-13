@@ -22,7 +22,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { usePlantStore } from "@/lib/store/plantsStore";
-import { PLANT_TYPES } from "@/lib/mockdata";
+import { PLANT_TYPES } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 import { PlantFormSchema } from "@/schemas/plantFormSchema";
 

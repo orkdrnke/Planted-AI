@@ -65,6 +65,7 @@ components.json
 
 lib/
   aiHelpers.ts
+  constants.ts
   mockdata.ts
   store/
     plantsStore.ts
@@ -72,6 +73,7 @@ lib/
 
 schemas/
   plantFormSchema.ts
+  careTipsSchema.ts
 
 types/
   plant.ts
@@ -107,8 +109,9 @@ The store (`usePlantStore`, wrapped in the `devtools` middleware) currently expo
 
 - `plants` — the plant collection, initially seeded with mock data from `lib/mockdata.ts`.
 - `newPlantId` — the ID of the most recently added plant, used to highlight its row in `/myGarden`.
-- `addPlant` — add a plant to the collection, generate its ID, and start the AI request.
+- `addPlant` — add a plant to the collection, generate its ID, and call `generateCareTips`.
 - `updatePlant` — merge partial data into an existing plant by ID.
+- `generateCareTips` — request AI care tips for a plant by ID and track `aiStatus` (`generating` → `ready` / `error`) and `aiError`. Also used for retries.
 - `removePlant` — remove a plant by ID.
 - `clearNewPlantId` — reset `newPlantId` after the highlight.
 
@@ -125,11 +128,11 @@ The intended data flow is:
 1. The user submits the plant form.
 2. The `addPlant` store action creates the plant with a stable ID (`uuid` v4).
 3. The plant is added to the Zustand store immediately.
-4. The same `addPlant` action sends a background `fetch` request to `/api/ai-care-guide` with `name`, `type`, and `dest`. The request is made from the store, not from a component.
+4. `addPlant` calls the `generateCareTips` store action, which sets `aiStatus: "generating"` and sends a background `fetch` request to `/api/ai-care-guide` with `name`, `type`, and `dest`. The request is made from the store, not from a component.
 5. The Next.js API route validates the request body with Zod (`400` on invalid input) and invokes the server-side AI helper.
 6. The helper requests structured care recommendations from OpenAI.
-7. The API returns the result validated against the care tips schema, or `null` if the AI output could not be parsed.
-8. The store updates the existing plant in Zustand using its ID via `updatePlant`.
+7. The API returns the result validated against the care tips schema, or `502` if the AI response is incomplete or could not be parsed.
+8. The store validates the response with `CareTipsSchema` (`schemas/careTipsSchema.ts`), merges only the AI fields into the plant by ID, and sets `aiStatus: "ready"`. Network errors, non-OK responses, and invalid data set `aiStatus: "error"` with `aiError`. Results for removed plants are ignored, and a new request is not started while one is pending.
 
 AI generation should not block the initial creation of the plant.
 
@@ -180,6 +183,7 @@ Relevant files include:
 - `types/plant.ts`
 - `types/store.ts`
 - `schemas/plantFormSchema.ts`
+- `schemas/careTipsSchema.ts` — AI care tips schema shared by the server and the client; it must stay free of server-only imports.
 
 Inspect these files before changing the plant model or form contract.
 
