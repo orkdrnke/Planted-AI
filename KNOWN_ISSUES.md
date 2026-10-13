@@ -16,9 +16,9 @@ The structured JSON with a `careTips` array may be truncated, causing parsing to
 
 `notes`, `imageUrl`, and `lastWatered` exist in `TPlant`, but there is no UI to set them. `imageUrl` is not used anywhere — the detail page loads the image from `/img/${plant.type}.png`.
 
-## 4. No tests
+## 4. Limited test coverage
 
-No test framework is configured.
+Vitest is set up and covers the AI route, the AI helper, and `updatePlant`. The form schema, the `addPlant` flow, and UI components are not tested yet.
 
 ## 5. UI text language and typo on the plant detail page
 

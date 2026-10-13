@@ -328,7 +328,7 @@ After making changes, run the most relevant available checks, such as:
 
 - TypeScript type checking — `pnpm typecheck`.
 - ESLint — `pnpm lint`.
-- Tests — not configured yet.
+- Tests — `pnpm test` (Vitest, `*.test.ts` next to the tested file). Tests must not call the real OpenAI API; mock `openai` or `@/lib/aiHelpers`.
 - Production build — `pnpm build`.
 
 `next dev` does not run a full type check, so a working dev server does not guarantee that `pnpm build` passes.
