@@ -366,7 +366,7 @@ The following limitations are known or expected in the current MVP and must be v
 
 Do not silently expand the scope to address these limitations during unrelated work.
 
-Known code issues that still need to be resolved are tracked in `KNOWN_ISSUES.md`.
+If a local `KNOWN_ISSUES.md` exists (it is not tracked by git), read it for known code issues that still need to be resolved.
 
 ## 14. Suggested Development Priorities
 

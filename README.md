@@ -6,7 +6,7 @@ Users can add plants, browse their collection in a table, open individual plant 
 
 This is a learning project focused on modern frontend architecture, state management, form handling, API integration, and structured AI outputs. It is not yet a production-ready gardening platform.
 
-Instructions for AI coding agents are in [AGENTS.md](AGENTS.md). Known code issues are tracked in [KNOWN_ISSUES.md](KNOWN_ISSUES.md).
+Instructions for AI coding agents are in [AGENTS.md](AGENTS.md).
 
 ## Getting Started
 
