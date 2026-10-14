@@ -366,7 +366,7 @@ The following limitations are known or expected in the current MVP and must be v
 - AI-generated recommendations may fail or be inaccurate.
 - Durable background processing is not implemented.
 - Search, photo capture, and other routes may be incomplete or placeholders.
-- AI loading, retry, and failure UX may need further development.
+- AI loading, retry, and failure states are shown on the plant detail page and as a row icon in `/myGarden`; there are no UI tests for them.
 
 Do not silently expand the scope to address these limitations during unrelated work.
 

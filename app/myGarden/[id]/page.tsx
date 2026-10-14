@@ -5,6 +5,8 @@ import { usePlantStore } from "@/lib/store/plantsStore";
 import { Card } from "@/components/ui/card";
 import { TPlant } from "@/types/plant";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 export default function PlantDetailPage() {
   const { id } = useParams();
@@ -32,7 +34,11 @@ export default function PlantDetailPage() {
         {/* Details */}
         <Card className="p-6 space-y-4">
           <h1 className="text-3xl font-semibold">{plant.name}</h1>
-          <p className="text-gray-500 italic">plant&apos;s scientific name</p>
+          <p className="text-gray-500 italic">
+            plant&apos;s botanical name: {plant.botanicalName}
+          </p>
+
+          <AiCareStatus plant={plant} />
 
           <div className="mt-6 space-y-4">
             <Section label="category" value={plant.type || "—"} />
@@ -106,6 +112,48 @@ function Section({ label, value }: { label: string; value: string }) {
   );
 }
 
+function AiCareStatus({ plant }: { plant: TPlant }) {
+  const generateCareTips = usePlantStore((state) => state.generateCareTips);
+  const retry = () => void generateCareTips(plant.id);
+
+  if (plant.aiStatus === "generating") {
+    return (
+      <div
+        role="status"
+        className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg text-gray-700"
+      >
+        <Loader2 className="size-4 animate-spin" />
+        Generating care tips...
+      </div>
+    );
+  }
+
+  if (plant.aiStatus === "error") {
+    return (
+      <div
+        role="alert"
+        className="flex flex-wrap items-center gap-3 bg-red-50 p-4 rounded-lg text-red-700"
+      >
+        <AlertCircle className="size-4" />
+        <span className="flex-1">
+          Could not generate care tips: {plant.aiError || "Unknown error"}
+        </span>
+        <Button variant="outline" className="cursor-pointer" onClick={retry}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  const hasTips = plant.aiStatus === "ready" || Boolean(plant.careTips?.length);
+
+  return (
+    <Button variant="outline" className="cursor-pointer" onClick={retry}>
+      {hasTips ? "Regenerate" : "Generate care tips"}
+    </Button>
+  );
+}
+
 function SidebarCard({
   title,
   children,
@@ -126,7 +174,8 @@ function WateringInfo({ plant }: { plant: TPlant }) {
     return <p className="bg-gray-50 p-4 rounded-lg">No info about watering</p>;
 
   const daysSince = Math.floor(
-    (Date.now() - new Date(plant.lastWatered).getTime()) / (1000 * 60 * 60 * 24)
+    (Date.now() - new Date(plant.lastWatered).getTime()) /
+      (1000 * 60 * 60 * 24),
   );
 
   return (

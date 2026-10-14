@@ -15,6 +15,8 @@ import Link from "next/link";
 import { usePlantStore } from "@/lib/store/plantsStore";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { AlertCircle, Loader2 } from "lucide-react";
+import { TPlant } from "@/types/plant";
 import { calculateTotalCost, formatCurrency } from "@/lib/plantTotals";
 
 function PlantsTable() {
@@ -62,7 +64,12 @@ function PlantsTable() {
             onClick={() => redirectToPlant(plant.id!)}
             className="cursor-pointer hover:bg-muted"
           >
-            <TableCell className="font-medium">{plant.name}</TableCell>
+            <TableCell className="font-medium">
+              <span className="flex items-center gap-2">
+                {plant.name}
+                <AiStatusIcon status={plant.aiStatus} />
+              </span>
+            </TableCell>
             <TableCell>{plant.type}</TableCell>
             <TableCell>{plant.price}</TableCell>
             <TableCell>{plant.size} cm</TableCell>
@@ -81,6 +88,26 @@ function PlantsTable() {
       </TableFooter>
     </Table>
   );
+}
+
+function AiStatusIcon({ status }: { status: TPlant["aiStatus"] }) {
+  if (status === "generating") {
+    return (
+      <Loader2
+        className="size-4 animate-spin text-gray-500"
+        aria-label="Generating care tips"
+      />
+    );
+  }
+  if (status === "error") {
+    return (
+      <AlertCircle
+        className="size-4 text-red-600"
+        aria-label="Care tips generation failed"
+      />
+    );
+  }
+  return null;
 }
 
 export default function myGarden() {
