@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePlantStore } from "@/lib/store/plantsStore";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { calculateTotalCost, formatCurrency } from "@/lib/plantTotals";
 
 function PlantsTable() {
   const plants = usePlantStore((state) => state.plants);
@@ -22,6 +23,8 @@ function PlantsTable() {
   const clearNewPlantId = usePlantStore((state) => state.clearNewPlantId);
   const highlightRef = useRef<HTMLTableRowElement | null>(null);
   const router = useRouter();
+
+  const totalCost = calculateTotalCost(plants);
 
   const redirectToPlant = (id: string) => {
     router.push(`/myGarden/${id}`);
@@ -36,7 +39,7 @@ function PlantsTable() {
       }, 2000);
       return () => clearTimeout(timeout);
     }
-  }, [newPlantId]);
+  }, [clearNewPlantId, newPlantId]);
 
   return (
     <Table className="caption-top m-auto">
@@ -70,8 +73,10 @@ function PlantsTable() {
       </TableBody>
       <TableFooter>
         <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
+          <TableCell colSpan={5}>Total price</TableCell>
+          <TableCell className="text-right">
+            {formatCurrency(totalCost)}
+          </TableCell>
         </TableRow>
       </TableFooter>
     </Table>
