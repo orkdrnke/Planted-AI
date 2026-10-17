@@ -10,20 +10,23 @@ updated_at: "2026-10-17"
 
 ## Platform decisions
 
-- **Posture:** responsive-both — `docs/design-system.md` is absent, so assumed from US-05 (phone and desktop); the desktop layout is the reference and the phone layout must not need sideways scrolling.
+- **Posture:** responsive-both — `docs/design-system.md` is absent, so assumed from US-05 (phone and desktop); the desktop layout is the reference and the phone layout must not need sideways scrolling. On a phone-sized screen each plant may be a card instead of a table row (AC-09).
 - The dashboard is a page, not a dialog. Opening a plant is a navigation to the plant page, and returning goes back to the dashboard.
-- The care-tip state is a text label next to the plant name in each row (AC-01, AC-10).
+- The care-tip state is a text label next to the plant name in each row or card (AC-01, AC-10).
+- Each plant row (or card) is one focusable item opened with Enter (AC-10).
+- Removing a plant starts from the dashboard row and asks for confirmation (default from spec §8, still open).
 
 ## Screen inventory
 
 | ID | Screen | Purpose | Entry | Exit |
 |---|---|---|---|---|
-| SCR-01 | Dashboard (with plants) | Collection status above a table of plants: name, type, location, watering, light | Opening the dashboard; returning from a plant page or from adding a plant | Row → SCR-03 or SCR-04; add action → SCR-06 |
-| SCR-02 | Dashboard (empty) | Empty-state message, status showing zero plants, action to add the first plant | Opening the dashboard with no plants | Add action → SCR-06 |
-| SCR-03 | Plant page (tips ready) | Full care tips and all details, including price, size and amount | Row selected on SCR-01 | Back → SCR-01 |
-| SCR-04 | Plant page (tips failed) | Plain-language failure explanation and a retry action, entered details intact | Row selected on SCR-01 for a failed plant | Retry → generating, then SCR-03; back → SCR-01 |
+| SCR-01 | Dashboard (with plants) | Collection status above a table of plants (cards on a phone): name, type, location, watering, light | Opening the dashboard; returning from a plant page, from adding a plant, or after removing a plant | Row → SCR-03, SCR-04 or SCR-05; add action → SCR-06; remove action → SCR-07 |
+| SCR-02 | Dashboard (empty) | Empty-state message, status showing zero plants, action to add the first plant | Opening the dashboard with no plants; removing the last plant | Add action → SCR-06 |
+| SCR-03 | Plant page (tips ready or generating) | Full care tips and all details, including price, size and amount; shows that tips are being prepared while generating | Row selected on SCR-01 for a ready or generating plant | Back → SCR-01 |
+| SCR-04 | Plant page (tips failed) | One plain-language failure sentence and a retry action, entered details intact | Row selected on SCR-01 for a failed plant or one with no tips and no generation under way | Retry → generating (SCR-03), then ready (SCR-03) or failed (SCR-04); back → SCR-01 |
 | SCR-05 | Plant not found | Same message for an unknown plant and for another gardener's plant | Opening a plant that is not in the gardener's collection | Back → SCR-01 or SCR-02 |
 | SCR-06 | Add plant | Existing add-plant form, unchanged by this feature | Add action from SCR-01 or SCR-02 | Submit → SCR-01 |
+| SCR-07 | Confirm removal | Asks the gardener to confirm removing one named plant | Remove action on a row of SCR-01 | Confirm → SCR-01 (or SCR-02 if it was the last plant); cancel → SCR-01 |
 
 ## Flows
 
@@ -34,12 +37,19 @@ flowchart TD
     A[Gardener opens the dashboard] --> B{Any plants?}
     B -->|no| C[SCR-02 Dashboard empty]
     B -->|yes| D[SCR-01 Dashboard rows with name, type, location, watering, light]
-    D --> E{Care tips ready for a plant?}
-    E -->|ready| F[SCR-01 Row shows watering and light text]
-    E -->|generating or failed| G[SCR-01 Row shows a text label instead of watering and light]
+    D --> L{Location entered?}
+    L -->|yes| L1[SCR-01 Location text shown]
+    L -->|no| L2[SCR-01 Dash shown in the location cell]
+    D --> E{Stored care tips or generation state}
+    E -->|stored tips| F[SCR-01 Row shows watering and light notes]
+    E -->|generating| G[SCR-01 Cells show Pending]
+    E -->|failed or no tips and no generation| H[SCR-01 Cells show Unavailable]
+    D --> N{Plant just added?}
+    N -->|yes| N1[SCR-01 Row or card briefly highlighted]
+    N -->|no| N2[SCR-01 No highlight]
 ```
 
-When the gardener opens the dashboard with at least one plant, each plant is one row with name, type, location, watering and light, and its care-tip state as a text label next to the name. Price, size and amount are not shown. If a plant's tips are ready the watering and light cells hold the text. If they are still generating or have failed (including a plant with no tips and no generation under way), the plant stays listed and those cells show a label instead of being blank. With no plants the gardener sees the empty dashboard instead.
+When the gardener opens the dashboard with at least one plant, each plant is one row (a card on a phone) with name, type, location, watering and light, and its care-tip state as a text label next to the name. Price, size and amount are not shown. A plant that has stored care tips is ready and shows its watering and light notes, even if its latest regeneration failed. A plant whose tips are generating shows "Pending" in both cells; a failed plant, or one with no tips and no generation under way, shows "Unavailable", and it stays listed. A plant with no location shows a dash. A plant that was just added is briefly highlighted. The dashboard offers no retry. With no plants the gardener sees the empty dashboard instead.
 
 ### Flow: US-02 — Read the collection status
 
@@ -60,8 +70,8 @@ flowchart TD
     A[SCR-01 Dashboard] -->|select a row| B{Plant in the gardener's collection?}
     B -->|no| C[SCR-05 Plant not found]
     B -->|yes| D{Care tips state}
-    D -->|ready| E[SCR-03 Plant page with full care tips and details]
-    D -->|failed or none| F[SCR-04 Plant page with failure explanation and retry]
+    D -->|stored tips| E[SCR-03 Plant page with full care tips and details]
+    D -->|failed or none| F[SCR-04 Plant page with failure sentence and retry]
     D -->|generating| G[SCR-03 Plant page showing tips are being prepared]
     F -->|retry| G
     G -->|generation succeeds| E
@@ -71,7 +81,7 @@ flowchart TD
     C -->|back| A
 ```
 
-Selecting a row opens that plant's page. A ready plant shows the full care tips and all details, including price, size and amount. A failed plant, or one with no tips and no generation under way, shows a plain explanation and a retry action while keeping its entered details; retrying moves it to generating and then to ready or back to failed. A generating plant shows that tips are being prepared. A plant that is not in the gardener's collection leads to the same not-found message as one that does not exist. Back returns to the dashboard.
+Selecting a row opens that plant's page. A plant with stored tips shows the full care tips and all details, including price, size and amount, with the rest of the current plant page unchanged. A failed plant, or one with no tips and no generation under way, shows the same one plain-language sentence (no technical error detail) and a retry action while keeping its entered details; retrying moves it to generating and then to ready or back to failed. A generating plant shows that tips are being prepared. A plant that is not in the gardener's collection leads to the same not-found message as one that does not exist. Back returns to the dashboard.
 
 ### Flow: US-04 — Start from an empty collection
 
@@ -88,24 +98,44 @@ A gardener with no plants sees an empty-state message and status showing zero pl
 ```mermaid
 flowchart TD
     A[SCR-01 Dashboard] --> B{Device and input}
-    B -->|phone-sized screen| C[SCR-01 All essential row information readable without sideways scrolling]
-    B -->|keyboard only| D[SCR-01 Every row reachable and openable by keyboard, status and labels in text]
-    D -->|open a row by keyboard| E[SCR-03 or SCR-04 Plant page]
+    B -->|phone-sized screen| C[SCR-01 Each plant as a card, all essential information readable, long name truncated]
+    B -->|keyboard only| D[SCR-01 Each row or card is one Tab stop, status and labels in text]
+    D -->|Enter on a row| E[SCR-03 or SCR-04 Plant page]
 ```
 
-On a phone-sized screen every row's essential information is readable without sideways scrolling. With only a keyboard the gardener can move to every row and open it, and the collection status and care-tip labels are conveyed in text, not by colour alone.
+On a phone-sized screen every plant's essential information is readable without sideways scrolling; plants may appear as cards, the watering and light notes are shown in full, and a name that is too long is truncated (the full name is on the plant page). With only a keyboard the gardener tabs to each row or card, which is one focusable item, and opens it with Enter; the collection status and care-tip labels are conveyed in text, not by colour alone.
+
+### Flow: US-06 — Remove a plant
+
+```mermaid
+flowchart TD
+    A[SCR-01 Dashboard] -->|remove on a plant| B[SCR-07 Confirm removal]
+    B -->|cancel| A
+    B -->|confirm| C{Plants left?}
+    C -->|yes| D[SCR-01 Plant gone, others unchanged, status counts drop]
+    C -->|no| E[SCR-02 Dashboard empty, status shows zero]
+```
+
+The gardener picks remove on a plant and is asked to confirm. Cancelling leaves the collection as it was. Confirming removes that plant only: the other plants and their care tips are unchanged and the status counts drop to match. If it was the last plant, the gardener sees the empty dashboard. Where the remove control sits and whether confirmation stays are still open in spec §8.
 
 ## AC coverage
 
 | AC | Shown by | Notes |
 |---|---|---|
-| AC-01 | Flow US-01 → SCR-01 rows | Care-tip state label next to the name |
-| AC-02 | Flow US-01 → generating or failed branch | Label replaces blank watering and light cells |
+| AC-01 | Flow US-01 → SCR-01 rows; highlight branch | Care-tip state label next to the name; new-plant highlight kept |
+| AC-02 | Flow US-01 → Pending, Unavailable, stored-tips and dash branches | Labels replace blank cells; stored tips win over a failed regeneration |
 | AC-03 | Flow US-02 → status node | Counts add up to the plant count |
-| AC-04 | Flow US-02 → update branch | Status always matches the rows |
-| AC-05 | Flow US-03 → ready branch → SCR-03 | |
+| AC-04 | Flow US-02 → update branch; Flow US-06 → confirm branch | Status always matches the rows |
+| AC-05 | Flow US-03 → stored-tips branch → SCR-03 | |
 | AC-06 | Flow US-03 → failed or none branch → SCR-04 | Includes retry and the generating loop |
 | AC-07 | Flow US-03 → not-in-collection branch → SCR-05 | Verified after roadmap step 4 |
 | AC-08 | Flow US-04 → SCR-02 | |
-| AC-09 | Flow US-05 → phone branch | |
-| AC-10 | Flow US-05 → keyboard branch | |
+| AC-09 | Flow US-05 → phone branch | Cards allowed, truncation of long names |
+| AC-10 | Flow US-05 → keyboard branch | One Tab stop per row or card, Enter opens |
+| AC-11 | Flow US-06 → confirm branch → SCR-01 or SCR-02 | Confirmation step is a default, see spec §8 |
+
+## Assumptions ledger
+
+- Assumed: remove control is on the dashboard row, with a confirmation screen (SCR-07) = default from spec §8 — because the question is still open. [veto?]
+- Assumed: a generating plant opens SCR-03 (shows tips being prepared) rather than a separate screen = keeps the inventory small. [veto?]
+- Assumed: the remove control is not offered on the plant page = AC-11 only requires it from the dashboard. [veto?]
