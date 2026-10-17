@@ -25,7 +25,7 @@ An invited user can register, keep a personal plant knowledge base with AI-gener
 | 4 | Personal collection in the database: each user sees only their own plants, starts empty, mock data removed | idea-brief.md §2 Problem | M | idea |
 | 5 | Care tips generated on the server and visible on any device, old `/api/ai-care-guide` route removed | idea-brief.md §6 Risks | M | idea |
 | 6 | Short onboarding shown only on first entry | idea-brief.md §2 Problem | S | idea |
-| 7 | Collection dashboard: essential columns, collection status, a click opens the plant page with care tips | idea-brief.md §2 Problem | S | idea |
+| 7 | Collection dashboard: essential columns, collection status, a click opens the plant page with care tips | idea-brief.md §2 Problem | S | spec'd → [`features/ux-improve`](features/ux-improve/spec.md) |
 | 8 | Open registration with abuse controls → see [Not yet specified](#not-yet-specified) | idea-brief.md §8 Open questions | fog | idea |
 
 ## Not yet specified
@@ -50,7 +50,7 @@ An invited user can register, keep a personal plant knowledge base with AI-gener
 | D3 | Where AI generation runs on the server and which `AGENTS.md` rule changes (§4.2, §9 or §13), recorded as an ADR | grilling | human | 5 |
 | D4 | Database types and constraints for `price`, `size` and `amount`, currently free strings | grilling | human | 4 |
 | D5 | Where the "onboarding completed" flag lives: on the account or in the browser | grilling | human | 6 |
-| D6 | The final dashboard columns beyond name, type and location | grilling | human | 7 |
+| D6 | ~~The final dashboard columns beyond name, type and location~~ Resolved 2026-10-17: name, type, location, watering, light → [`features/ux-improve/spec.md`](features/ux-improve/spec.md) | grilling | human | 7 |
 
 ## Decisions so far
 
@@ -59,6 +59,7 @@ An invited user can register, keep a personal plant knowledge base with AI-gener
 - Week 8 means deployed with invite-only access, open registration comes after → [`idea-brief.md` §4](idea-brief.md)
 - Email and password login → [`idea-brief.md` §7](idea-brief.md)
 - Finished care tips are visible on any device even if the creating tab was closed → [`idea-brief.md` §7](idea-brief.md)
+- Dashboard (7) may ship before the DB-backed collection (4); its authorization criterion AC-07 is verified after step 4 → [`features/ux-improve/spec.md` §8](features/ux-improve/spec.md)
 - The existing Next route handler would shadow a plain-array `/api` rewrite, so it must be removed or moved behind the backend → [`architecture-map.md` Constraints](architecture-map.md)
 
 ## Dependency graph
@@ -70,7 +71,7 @@ flowchart LR
   s3 -->|plants belong to a user| s4["4 · Collection in DB"]
   s3 -->|first entry needs an account| s6["6 · Onboarding"]
   s4 -->|AI status stored on the plant record| s5["5 · Server-side care tips"]
-  s4 -->|dashboard reads the real collection| s7["7 · Dashboard"]
+  s4 -->|re-verify AC-07 on the real collection| s7["7 · Dashboard"]
   s3 -->|auth foundation| s8["8 · Open registration (fog)"]
   s5 -->|server-side AI to put quotas on| s8
 ```
