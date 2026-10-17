@@ -65,6 +65,15 @@ describe("CollectionStatus", () => {
     expect(container.textContent).toContain("Помилка: 1");
   });
 
+  it("is a labelled region whose counts stay readable text", () => {
+    const { container } = render(<CollectionStatus plants={[readyPlant]} />);
+
+    const region = screen.getByRole("region", { name: "Стан колекції" });
+    expect(region.textContent).toContain("Рослин: 1");
+    // ARIA 1.2 prohibits naming a paragraph, and a name would hide the counts
+    expect(container.querySelector("p[aria-label]")).toBeNull();
+  });
+
   it("reports zero for an empty collection", () => {
     const { container } = render(<CollectionStatus plants={[]} />);
 

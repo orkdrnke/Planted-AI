@@ -34,7 +34,8 @@ const plants: TPlant[] = [
   { ...basePlant, id: "p3", name: "Кактус", aiStatus: "error" },
 ];
 
-const statusText = () => screen.getByLabelText("Стан колекції").textContent;
+const statusText = () =>
+  screen.getByRole("region", { name: "Стан колекції" }).textContent;
 const plantLinks = () =>
   screen.getAllByRole("link").filter((link) => link.getAttribute("href")?.startsWith("/myGarden/"));
 

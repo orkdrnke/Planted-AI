@@ -19,7 +19,7 @@
 | T9 | Run all checks, audit accessibility and performance, and update AGENTS.md and spec wording | tests | Orest Lyubinets | S | T1, T2, T3, T4, T5, T6, T7, T8 | done | COMMIT |
 | T10 | Keep short notes untruncated and stop long type or location overflowing the phone card | ui | Orest Lyubinets | XS | T4 | done | COMMIT |
 | T11 | Test that submitting the add form marks the new plant and lands on the dashboard | ui | Orest Lyubinets | XS | T8 | done | COMMIT |
-| T12 | Set the document language to Ukrainian and label the collection status with a valid landmark | ui | Orest Lyubinets | XS | T5 | todo | — |
+| T12 | Set the document language to Ukrainian and label the collection status with a valid landmark | ui | Orest Lyubinets | XS | T5 | done | COMMIT |
 | T13 | Sync ux-flows, contract notes, screens, spec §8 and the architecture map with the built feature | docs | Orest Lyubinets | XS | T9 | todo | — |
 
 **Total:** 13 tasks, ~6.5 person-days. T10–T13 are follow-ups from `_review/review-2026-10-17.md` (F2+F7, F3, F4+F6, F1+F8).
