@@ -10,7 +10,7 @@
 | generateCareTips.request.type | existing code — same schema (optional string) | high |
 | generateCareTips.request.dest | existing code — same schema (optional string) | high |
 | CareTips.botanicalName, wateringFrequency, sunlightNeeds, soilType, temperatureRange, careTips | existing code — `schemas/careTipsSchema.ts` `CareTipsSchema` | high |
-| CareTips.wateringShort, sunlightShort | ADR-0001 — not yet in `CareTipsSchema`; length limit unverified | medium |
+| CareTips.wateringShort, sunlightShort | ADR-0001 — in `CareTipsSchema` (`schemas/careTipsSchema.ts`); 40-character limit enforced by `superRefine` (`SHORT_NOTE_MAX_LENGTH`) | high |
 | Error.error | existing code — `route.ts` JSON bodies for 400 / 502 / 500 | high |
 | Error.issues | existing code — `route.ts` `input.error.flatten().fieldErrors` on invalid body | high |
 
@@ -18,7 +18,7 @@
 
 1. **Endpoint ↔ data-model** — ✓ (existing-source fallback). The one operation reads and writes no stored entity; its response is the care-tips shape stored on `TPlant` (`types/plant.ts`) by the store.
 2. **Error code ↔ repo error definition** — n/a, recorded: no error registry exists and the route returns `{ error }` strings, not codes. Nothing in the contract invents codes.
-3. **Validation ↔ constraint** — ✓ with one open item: `name` min 1 matches the route. `maxLength: 40` on the two short fields is the ADR-0001 intent but the installed `openai` ^6.7.0 / model may not enforce it in structured output (SAD §11). Until verified, treat it as a prompt-level target plus a client-side check.
+3. **Validation ↔ constraint** — ✓: `name` min 1 matches the route. Strict structured output rejects `maxLength`, so `maxLength: 40` on the two short fields is enforced by a `superRefine` in `CareTipsSchema` (`SHORT_NOTE_MAX_LENGTH`): on the server an over-long note fails parsing and the route answers 502; the store re-validates on the client (resolved in T1).
 4. **OpenAPI ↔ sequence** *(supporting)* — ✓. SAD §6 Flow 2 and Flow 4 show success and "failure or invalid response", which the contract covers with 502 / 500 (and 400 for a request the client should never send). No flow draws the 400 branch; it is a defensive response, not a user-reachable path.
 
 ## Back-feed (coverage)
@@ -47,6 +47,6 @@ These are reconciled when the route moves behind the backend (roadmap step 5, op
 
 ## Open items
 
-- Verify that the length limit on `wateringShort` / `sunlightShort` can be enforced (ADR-0001, SAD §11), then keep or relax `maxLength: 40`.
+- ~~Verify that the length limit on `wateringShort` / `sunlightShort` can be enforced~~ — resolved: kept at 40, enforced by `superRefine` (T1).
 - `info.version` stays `0.1.0`; bump with a CHANGELOG line when the field change ships.
 - `spectral lint contracts/openapi.yaml` is suggested; no linter is wired in this repo.

@@ -14,7 +14,7 @@ updated_at: "2026-10-17"
 - The dashboard is a page, not a dialog. Opening a plant is a navigation to the plant page, and returning goes back to the dashboard.
 - The care-tip state is a text label next to the plant name in each row or card (AC-01, AC-10).
 - Each plant row (or card) is one focusable item opened with Enter (AC-10).
-- Removing a plant starts from the dashboard row and asks for confirmation (default from spec §8, still open).
+- Removing a plant starts from the plant page (SCR-03/SCR-04) and asks for confirmation (SCR-07); decided in sad.md §4.
 
 ## Screen inventory
 

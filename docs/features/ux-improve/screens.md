@@ -14,13 +14,13 @@ updated_at: "2026-10-17"
 
 ## Source
 
-- **Tool:** code (no `docs/design-system.md` exists, so `code` is the default; recommend `/sdd:design-system` before the next UI feature).
+- **Tool:** code. When this manifest was written no `docs/design-system.md` existed; it has since been created (code canon) and the NEW components below are registered there.
 - **File:** inline wireframes below.
 
 **Noted gaps and drift (read before `tasks`):**
 
 1. **No design-system inventory.** "Components" below name the shadcn primitives that exist in `components/ui/` (`Button`, `Card`, `Dialog`, `Form`, `Input`, `Select`, `Label`) as the de facto inventory. Anything else is a `NEW:` row in §New components.
-2. **Removal moved to the plant page.** `ux-flows.md` still puts the remove action on the dashboard row (SCR-01 → SCR-07) and says it is not offered on the plant page. `sad.md` §4 and §6 Flow 3 decided the opposite (AC-10: a row has exactly one focusable item), and `screens` follows the SAD. SAD §11 already lists the `ux-flows.md` / spec §8 update as a to-do. This manifest therefore has the remove action on SCR-03 and SCR-04, and SCR-07 opens from them. SCR-01 has **no** remove control.
+2. **Removal moved to the plant page.** *(Resolved since: `ux-flows.md` and spec §8 now match.)* `ux-flows.md` still puts the remove action on the dashboard row (SCR-01 → SCR-07) and says it is not offered on the plant page. `sad.md` §4 and §6 Flow 3 decided the opposite (AC-10: a row has exactly one focusable item), and `screens` follows the SAD. SAD §11 already lists the `ux-flows.md` / spec §8 update as a to-do. This manifest therefore has the remove action on SCR-03 and SCR-04, and SCR-07 opens from them. SCR-01 has **no** remove control.
 3. **UI text is Ukrainian** (ADR-0003). Wireframe text below is a *proposal* to be placed in `lib/uiStrings.ts`; wording is confirmed there, not here. State tokens, SCR ids and component names stay English.
 4. **Care-tip state rule** (ADR-0002): stored tips ⇒ `ready` (even when a regeneration is under way or has failed); else generation under way ⇒ `generating`; else `failed`. Every state label below is the output of `getCareTipsState(plant)`.
 
@@ -273,11 +273,11 @@ SCR-07 default
 
 | Component | Why no existing primitive fits | Registered in design-system |
 |---|---|---|
-| NEW: `PlantListItem` | One responsive row-or-card that is a single `<Link>` (one Tab stop). `Table`/`TableRow` can't be one link and become a card on a phone; `Card` has no row layout or link semantics | pending (no `docs/design-system.md` yet) |
-| NEW: `CollectionStatus` | Text summary of total and ready / generating / failed counts; no primitive shows a counted summary | pending |
-| NEW: `CareTipStateLabel` | Text label (with a decorative icon) for ready / generating / failed, shared by SCR-01, SCR-03, SCR-04; there is no badge primitive in `components/ui/` | pending |
-| NEW: `EmptyState` | Message plus a prominent add action; no empty-state primitive exists | pending |
-| NEW: `RemovePlantDialog` | Confirmation naming one plant; composes the existing `Dialog` parts and `Button`, so it is a composite, not a new primitive | pending |
+| NEW: `PlantListItem` | One responsive row-or-card that is a single `<Link>` (one Tab stop). `Table`/`TableRow` can't be one link and become a card on a phone; `Card` has no row layout or link semantics | registered (`docs/design-system.md`) |
+| NEW: `CollectionStatus` | Text summary of total and ready / generating / failed counts; no primitive shows a counted summary | registered |
+| NEW: `CareTipStateLabel` | Text label (with a decorative icon) for ready / generating / failed, shared by SCR-01, SCR-03, SCR-04; there is no badge primitive in `components/ui/` | registered |
+| NEW: `EmptyState` | Message plus a prominent add action; no empty-state primitive exists | registered |
+| NEW: `RemovePlantDialog` | Confirmation naming one plant; composes the existing `Dialog` parts and `Button`, so it is a composite, not a new primitive | registered |
 
 Names are proposals (SAD §5); `tasks` confirms them. `AiCareStatus`, `Section` and `SidebarCard` are existing in-page components of `app/myGarden/[id]/page.tsx` and are reused, not new.
 

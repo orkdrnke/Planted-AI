@@ -108,14 +108,14 @@ components:
           description: Full watering text, shown on the plant page
         wateringShort:
           type: string
-          maxLength: 40  # ADR-0001: ~40 chars; enforcement by structured output still to be verified
+          maxLength: 40  # ADR-0001: enforced by CareTipsSchema superRefine (SHORT_NOTE_MAX_LENGTH), not by structured output; over-long → 502
           description: 2-4 word watering note, shown on the dashboard
         sunlightNeeds:
           type: string
           description: Full light text, shown on the plant page
         sunlightShort:
           type: string
-          maxLength: 40  # ADR-0001: ~40 chars; enforcement by structured output still to be verified
+          maxLength: 40  # ADR-0001: enforced by CareTipsSchema superRefine (SHORT_NOTE_MAX_LENGTH), not by structured output; over-long → 502
           description: 2-4 word light note, shown on the dashboard
         soilType: { type: string }
         temperatureRange: { type: string }
