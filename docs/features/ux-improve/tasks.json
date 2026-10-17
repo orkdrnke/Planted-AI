@@ -1,0 +1,201 @@
+{
+  "slug": "ux-improve",
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Add short watering and light notes to the care-tips schema, type and prompt",
+      "layer": "domain",
+      "deps": [],
+      "acs": [
+        "AC-01",
+        "AC-09"
+      ],
+      "dod": "Schema, type, prompt and tests include both short fields; `pnpm test` passes without calling real OpenAI",
+      "files_hint": [
+        "schemas/careTipsSchema.ts",
+        "types/plant.ts",
+        "lib/aiHelpers.ts",
+        "lib/aiHelpers.test.ts",
+        "app/api/ai-care-guide/route.test.ts",
+        "lib/store/plantsStore.test.ts"
+      ],
+      "file": "docs/features/ux-improve/tasks/short-notes-in-care-tips.md",
+      "status": "todo"
+    },
+    {
+      "id": "T2",
+      "title": "Add getCareTipsState and getCollectionStatus pure functions with unit tests",
+      "layer": "domain",
+      "deps": [],
+      "acs": [
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-08"
+      ],
+      "dod": "Unit tests cover all five cases above and `ready + generating + failed === total` for any input",
+      "files_hint": [
+        "lib/careTipsState.ts",
+        "lib/careTipsState.test.ts"
+      ],
+      "file": "docs/features/ux-improve/tasks/care-tips-state-functions.md",
+      "status": "todo"
+    },
+    {
+      "id": "T3",
+      "title": "Create lib/uiStrings.ts with the Ukrainian text of the dashboard, plant page and removal dialog",
+      "layer": "ui",
+      "deps": [],
+      "acs": [
+        "AC-02",
+        "AC-06",
+        "AC-08"
+      ],
+      "dod": "`lib/uiStrings.ts` exports every string listed in `screens.md` for SCR-01…SCR-05 and SCR-07",
+      "files_hint": [
+        "lib/uiStrings.ts"
+      ],
+      "file": "docs/features/ux-improve/tasks/ui-strings-module.md",
+      "status": "todo"
+    },
+    {
+      "id": "T4",
+      "title": "Build CareTipStateLabel, CollectionStatus, EmptyState and PlantListItem components",
+      "layer": "ui",
+      "deps": [
+        "T2",
+        "T3"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-02",
+        "AC-03",
+        "AC-08",
+        "AC-09",
+        "AC-10"
+      ],
+      "dod": "The four components render the states in `screens.md` SCR-01/SCR-02; no nested interactive elements inside the row link",
+      "files_hint": [
+        "components/careTipStateLabel.tsx",
+        "components/collectionStatus.tsx",
+        "components/emptyState.tsx",
+        "components/plantListItem.tsx"
+      ],
+      "file": "docs/features/ux-improve/tasks/dashboard-components.md",
+      "status": "todo"
+    },
+    {
+      "id": "T5",
+      "title": "Rebuild /myGarden as the dashboard: status, responsive list, empty state, highlight",
+      "layer": "ui",
+      "deps": [
+        "T1",
+        "T4"
+      ],
+      "acs": [
+        "AC-01",
+        "AC-03",
+        "AC-04",
+        "AC-08",
+        "AC-09",
+        "AC-10"
+      ],
+      "dod": "Dashboard shows only name, type, location, watering, light; status counts match the rows after add/retry",
+      "files_hint": [
+        "app/myGarden/page.tsx",
+        "lib/plantTotals.ts",
+        "lib/plantTotals.test.ts"
+      ],
+      "file": "docs/features/ux-improve/tasks/dashboard-page.md",
+      "status": "todo"
+    },
+    {
+      "id": "T6",
+      "title": "Update the plant page: back link, state label, fixed failure sentence with retry, full tips, not-found",
+      "layer": "ui",
+      "deps": [
+        "T2",
+        "T3",
+        "T4"
+      ],
+      "acs": [
+        "AC-05",
+        "AC-06",
+        "AC-07"
+      ],
+      "dod": "SCR-03 ready/generating, SCR-04 failed, SCR-05 not-found render as in `screens.md`",
+      "files_hint": [
+        "app/myGarden/[id]/page.tsx"
+      ],
+      "file": "docs/features/ux-improve/tasks/plant-page-states.md",
+      "status": "todo"
+    },
+    {
+      "id": "T7",
+      "title": "Add RemovePlantDialog on the plant page and navigate back to the dashboard after removal",
+      "layer": "ui",
+      "deps": [
+        "T3",
+        "T6"
+      ],
+      "acs": [
+        "AC-11",
+        "AC-08"
+      ],
+      "dod": "Removing a plant updates rows and status counts together (manual check, plus store test if one is missing for `removePlant`)",
+      "files_hint": [
+        "components/removePlantDialog.tsx",
+        "app/myGarden/[id]/page.tsx"
+      ],
+      "file": "docs/features/ux-improve/tasks/remove-plant-dialog.md",
+      "status": "todo"
+    },
+    {
+      "id": "T8",
+      "title": "Move the text of the landing page, add-plant form and header into uiStrings in Ukrainian",
+      "layer": "ui",
+      "deps": [
+        "T3"
+      ],
+      "acs": [],
+      "dod": "No English product text remains on the landing page, header or add-plant form (grep and visual check)",
+      "files_hint": [
+        "app/page.tsx",
+        "app/addPlant/page.tsx",
+        "components/header.tsx",
+        "components/headerMenu.tsx",
+        "schemas/plantFormSchema.ts",
+        "lib/uiStrings.ts"
+      ],
+      "file": "docs/features/ux-improve/tasks/translate-existing-screens.md",
+      "status": "todo"
+    },
+    {
+      "id": "T9",
+      "title": "Run all checks, audit accessibility and performance, and update AGENTS.md and spec wording",
+      "layer": "tests",
+      "deps": [
+        "T1",
+        "T2",
+        "T3",
+        "T4",
+        "T5",
+        "T6",
+        "T7",
+        "T8"
+      ],
+      "acs": [
+        "AC-09",
+        "AC-10"
+      ],
+      "dod": "`pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` all pass, output recorded",
+      "files_hint": [
+        "AGENTS.md",
+        "docs/features/ux-improve/spec.md",
+        "docs/features/ux-improve/ux-flows.md"
+      ],
+      "file": "docs/features/ux-improve/tasks/verify-and-update-docs.md",
+      "status": "todo"
+    }
+  ]
+}
