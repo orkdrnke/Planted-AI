@@ -51,12 +51,15 @@ export function PlantListItem({
           <span className="truncate font-medium">{plant.name}</span>
           <CareTipStateLabel state={state} />
         </span>
+        {/* User-entered words can be long and unbroken, so cut them at every width */}
         <span className="flex min-w-0 gap-1 text-gray-600 md:contents">
-          <span className="md:truncate">{uiStrings.plantTypeLabel(plant.type)}</span>
+          <span className="min-w-0 truncate">
+            {uiStrings.plantTypeLabel(plant.type)}
+          </span>
           <span aria-hidden="true" className="md:hidden">
             ·
           </span>
-          <span className="md:truncate">
+          <span className="min-w-0 truncate">
             {plant.dest || uiStrings.cell.noLocation}
           </span>
         </span>

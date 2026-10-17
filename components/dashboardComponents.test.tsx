@@ -159,6 +159,38 @@ describe("PlantListItem", () => {
     expect(screen.getByRole("link").textContent).toContain(name);
   });
 
+  it("never truncates the short watering and light notes", () => {
+    render(<PlantListItem plant={readyPlant} />);
+
+    for (const note of ["Раз на тиждень", "Розсіяне"]) {
+      const cell = screen.getByText(note);
+      expect(cell.className).not.toMatch(/truncate/);
+    }
+  });
+
+  it("may truncate the full-text fallback on wide screens", () => {
+    render(
+      <PlantListItem
+        plant={{ ...readyPlant, wateringShort: undefined, sunlightShort: undefined }}
+      />
+    );
+
+    expect(screen.getByText(readyPlant.wateringFrequency!).className).toContain("md:truncate");
+    expect(screen.getByText(readyPlant.sunlightNeeds!).className).toContain("md:truncate");
+  });
+
+  it("keeps a long unbroken type or location inside the card at every width", () => {
+    const dest = "Підвіконнявсхіднійкімнатібіляробочогостолу";
+    render(<PlantListItem plant={{ ...readyPlant, dest }} />);
+
+    for (const text of [dest, "Кімнатна"]) {
+      const cell = screen.getByText(text);
+      expect(cell.className.split(" ")).toEqual(
+        expect.arrayContaining(["min-w-0", "truncate"])
+      );
+    }
+  });
+
   it("renders markup in the name as plain text", () => {
     const name = "<img src=x onerror=alert(1)>";
     const { container } = render(<PlantListItem plant={{ ...readyPlant, name }} />);

@@ -196,6 +196,83 @@
       ],
       "file": "docs/features/ux-improve/tasks/verify-and-update-docs.md",
       "status": "done"
+    },
+    {
+      "id": "T10",
+      "title": "Keep short notes untruncated and stop long type or location overflowing the phone card",
+      "layer": "ui",
+      "deps": [
+        "T4"
+      ],
+      "acs": [
+        "AC-09"
+      ],
+      "dod": "Component tests assert short notes carry no truncate class and type/location spans are guarded at every width",
+      "files_hint": [
+        "components/plantListItem.tsx",
+        "components/dashboardComponents.test.tsx"
+      ],
+      "file": "docs/features/ux-improve/tasks/review-fix-row-overflow.md",
+      "status": "done"
+    },
+    {
+      "id": "T11",
+      "title": "Test that submitting the add form marks the new plant and lands on the dashboard",
+      "layer": "ui",
+      "deps": [
+        "T8"
+      ],
+      "acs": [
+        "AC-01"
+      ],
+      "dod": "Component test submits AddPlantForm and asserts replace('/myGarden') and newPlantId",
+      "files_hint": [
+        "app/addPlant/page.test.tsx"
+      ],
+      "file": "docs/features/ux-improve/tasks/review-fix-add-form-test.md",
+      "status": "todo"
+    },
+    {
+      "id": "T12",
+      "title": "Set the document language to Ukrainian and label the collection status with a valid landmark",
+      "layer": "ui",
+      "deps": [
+        "T5"
+      ],
+      "acs": [
+        "AC-10"
+      ],
+      "dod": "html lang is uk; status is a labelled section, not an aria-label on a paragraph; tests query by role",
+      "files_hint": [
+        "app/layout.tsx",
+        "components/collectionStatus.tsx",
+        "components/dashboardComponents.test.tsx",
+        "app/myGarden/page.test.tsx"
+      ],
+      "file": "docs/features/ux-improve/tasks/review-fix-a11y.md",
+      "status": "todo"
+    },
+    {
+      "id": "T13",
+      "title": "Sync ux-flows, contract notes, screens, spec §8 and the architecture map with the built feature",
+      "layer": "docs",
+      "deps": [
+        "T9"
+      ],
+      "acs": [
+        "AC-11"
+      ],
+      "dod": "No artifact still calls the short-note limit unverified, design-system.md missing, plantTotals live, or removal a dashboard-row action",
+      "files_hint": [
+        "docs/features/ux-improve/ux-flows.md",
+        "docs/features/ux-improve/contracts/openapi.yaml",
+        "docs/features/ux-improve/contracts/api-sync-report.md",
+        "docs/features/ux-improve/spec.md",
+        "docs/features/ux-improve/screens.md",
+        "docs/architecture-map.md"
+      ],
+      "file": "docs/features/ux-improve/tasks/review-fix-docs-sync.md",
+      "status": "todo"
     }
   ]
 }
