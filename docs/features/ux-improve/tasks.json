@@ -82,7 +82,7 @@
         "components/plantListItem.tsx"
       ],
       "file": "docs/features/ux-improve/tasks/dashboard-components.md",
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "T5",

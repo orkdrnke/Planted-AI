@@ -9,8 +9,8 @@ files_hint: ["components/careTipStateLabel.tsx", "components/collectionStatus.ts
 owner: "Orest Lyubinets"
 estimate: "M"
 context_budget: "M"
-status: "todo"
-step: ""
+status: "done"
+step: "COMMIT"
 ---
 
 > **To the executing agent:** work from what is inlined here. If a slice is insufficient, ambiguous, or contradicts the code in front of you, open the named file for the full text and follow that. Do not invent the missing part. The source always wins.
@@ -124,11 +124,13 @@ Internal — no API surface.
 
 ## Checklist
 
-- [ ] `CareTipStateLabel({ state })`: text from `uiStrings`, never colour alone, decorative icon `aria-hidden` — `components/careTipStateLabel.tsx`
-- [ ] `CollectionStatus({ plants })`: calls `getCollectionStatus`, renders total + three counts as text — `components/collectionStatus.tsx`
-- [ ] `EmptyState`: message and prominent `Button` as link to `/addPlant` — `components/emptyState.tsx`
-- [ ] `PlantListItem({ plant, highlighted })`: one `<Link>`, row on `md+` and card below, name `truncate`, location dash, short notes or «Очікується»/«Недоступно» from `getCareTipsState`, ready plants without short notes fall back to the full text — `components/plantListItem.tsx`
-- [ ] Only English comments; text only through `lib/uiStrings.ts`
+- [x] `CareTipStateLabel({ state })`: text from `uiStrings`, never colour alone, decorative icon `aria-hidden` — `components/careTipStateLabel.tsx`
+- [x] `CollectionStatus({ plants })`: calls `getCollectionStatus`, renders total + three counts as text — `components/collectionStatus.tsx`
+- [x] `EmptyState`: message and prominent `Button` as link to `/addPlant` — `components/emptyState.tsx`
+- [x] `PlantListItem({ plant, highlighted })`: one `<Link>`, row on `md+` and card below, name `truncate`, location dash, short notes or «Очікується»/«Недоступно» from `getCareTipsState`, ready plants without short notes fall back to the full text — `components/plantListItem.tsx`
+- [x] Only English comments; text only through `lib/uiStrings.ts`
+
+**Test setup (confirmed with the owner 2026-10-17):** dev dependencies `jsdom`, `@testing-library/react`, `@testing-library/dom`, `@testing-library/user-event`; `*.test.tsx` files opt into jsdom with a `// @vitest-environment jsdom` docblock, `*.test.ts` stay in node; `vitest.config.mts` compiles JSX with the automatic runtime because `tsconfig.json` keeps `"jsx": "preserve"` for Next.js. Manual 360 px and Tab/Enter checks are recorded in T9.
 
 ## Edge cases
 

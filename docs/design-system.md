@@ -56,6 +56,10 @@ Reuse first. A screen composes these before any new component is proposed.
 | NavigationMenu | menu primitives | `components/ui/navigation-menu.tsx:8` |
 | Header | app header | `components/header.tsx:5` |
 | HeaderMenu | header navigation | `components/headerMenu.tsx:7` |
+| CareTipStateLabel | `ready`, `generating`, `failed`; text label with a decorative icon (serves as the Badge for care-tip state) | `components/careTipStateLabel.tsx:13` |
+| CollectionStatus | total + ready / generating / failed counts as text | `components/collectionStatus.tsx:5` |
+| EmptyState | message + prominent add action (link to `/addPlant`) | `components/emptyState.tsx:6` |
+| PlantListItem | one link per plant: table-like row on `md+`, card below; `highlighted`; exports `plantListColumns` | `components/plantListItem.tsx:23` |
 
 Not in the inventory yet (needed for the current UX work, so they would be new components):
 Badge, Skeleton, Alert/inline error, Toast, Tooltip. `implement` registers them here when added.
