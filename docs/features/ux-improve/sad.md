@@ -196,6 +196,102 @@ sequenceDiagram
 
 **Critical flow 3: remove a plant** — seeded here, covered fully by `sequences`: the gardener opens a plant page, chooses remove, confirms in a dialog; the store removes that plant only; the web UI returns to the dashboard, where the rows and the status counts no longer include it; if it was the last plant, the gardener sees the empty state with zero plants in the status (AC-08).
 
+### Flow 3 (diagram): remove a plant
+
+```mermaid
+sequenceDiagram
+    actor Gardener
+    participant Web as Web UI
+    participant Store as Plant store
+    Gardener->>Web: Opens a plant page
+    Gardener->>Web: Chooses to remove the plant
+    Web-->>Gardener: Confirmation dialog naming that plant
+    alt Gardener cancels
+        Gardener->>Web: Cancels
+        Web-->>Gardener: Dialog closes, plant page unchanged
+    else Gardener confirms
+        Gardener->>Web: Confirms
+        Web->>Store: Removes that plant by id
+        Store-->>Web: Plants without it, other plants and their tips unchanged
+        Web->>Web: Recomputes the status counts from the remaining plants
+        alt Plants remain
+            Web-->>Gardener: Dashboard without the plant, counts dropped to match
+        else It was the last plant
+            Web-->>Gardener: Empty state, status shows zero plants
+        end
+    end
+```
+
+### Flow 4: retry care tips from the plant page
+
+```mermaid
+sequenceDiagram
+    actor Gardener
+    participant Web as Web UI
+    participant Store as Plant store
+    participant Route as AI care-guide route
+    participant OpenAI as OpenAI Responses API
+    Gardener->>Web: Opens the page of a plant whose tips failed or never started
+    Web-->>Gardener: One fixed failure sentence and a retry action, entered details intact
+    Gardener->>Web: Chooses retry
+    Web->>Store: Requests care tips for that plant
+    alt Generation already under way
+        Store-->>Web: Ignores the duplicate request
+    else No generation under way
+        Store->>Store: Marks the plant as generating
+        Store-->>Web: Updated plant
+        Web-->>Gardener: Page shows that tips are being prepared
+        Store->>Route: Requests care tips
+        Route->>OpenAI: Asks for structured care tips
+        alt Tips returned and valid
+            OpenAI-->>Route: Tips with short and full watering and light text
+            Route-->>Store: Validated tips
+            Store->>Store: Merges only the tip fields into that plant
+            Store-->>Web: Updated plant
+            Web-->>Gardener: Page shows the full care tips, state is ready
+        else Failure or invalid response
+            Route-->>Store: Failure
+            Store->>Store: Records the failure on that plant
+            Store-->>Web: Updated plant
+            Web->>Web: Derives the state, stored tips win over the failure
+            alt Plant has stored tips
+                Web-->>Gardener: Stored tips still shown, state stays ready
+            else No stored tips
+                Web-->>Gardener: Same fixed failure sentence and retry action again
+            end
+        end
+    end
+```
+
+### Use-case and AC coverage
+
+Participants are the §5 containers by name (the Web UI is the `<ui>`, the Plant store and the AI care-guide route are the `<service>`). No flow persists to a datastore: the collection lives in the in-memory Plant store, so there are no persist notes for `data-model`.
+
+| §4 user story | Realised by |
+|---|---|
+| US-01 See the collection at a glance | Flow 1 |
+| US-02 Read the collection status | Flow 1 (counts derived), Flow 2 and Flow 3 (counts update) |
+| US-03 Open a plant from the dashboard | Flow 1, Flow 4 |
+| US-04 Start from an empty collection | Flow 1 (empty branch), Flow 3 (last plant) |
+| US-05 Use the dashboard on any device | Non-runtime, see AC-09 and AC-10 below |
+| US-06 Remove a plant | Flow 3 |
+
+| §5 AC | Shown by |
+|---|---|
+| AC-01 | Flow 1 (rows, state label), Flow 2 (new-plant highlight) |
+| AC-02 | Flow 1 (pending or unavailable label), Flow 4 (stored tips win over a failed regeneration) |
+| AC-03 | Flow 1 (status and counts derived from the plants) |
+| AC-04 | Flow 2 (generating to ready or failed), Flow 3 (counts drop after removal) |
+| AC-05 | Flow 1 (plant found, full tips) |
+| AC-06 | Flow 4 (failure sentence, retry, generating, ready or failed again) |
+| AC-07 | Flow 1 (plant not in the collection, same message); verified after roadmap step 4 |
+| AC-08 | Flow 1 (empty branch), Flow 3 (last plant removed) |
+| AC-09 | Non-runtime N/A: card layout, full short notes and name truncation are markup and CSS, no participant exchange |
+| AC-10 | Non-runtime N/A: one Tab stop per row, Enter opens, text labels are markup and focus behaviour, no participant exchange |
+| AC-11 | Flow 3 |
+
+**Flags for `design` (not auto-applied):** none. No participant outside §5 was needed. The two non-runtime ACs (AC-09, AC-10) are verified by the manual and audit checks in §10 QG-3.
+
 ## 7. Deployment view
 
 <!-- N/A: reuses the existing Next.js deployment unit, no infra change; the feature adds no process, service or datastore -->
