@@ -9,8 +9,8 @@ files_hint: ["app/myGarden/[id]/page.tsx"]
 owner: "Orest Lyubinets"
 estimate: "M"
 context_budget: "M"
-status: "todo"
-step: ""
+status: "done"
+step: "COMMIT"
 ---
 
 > **To the executing agent:** work from what is inlined here. If a slice is insufficient, ambiguous, or contradicts the code in front of you, open the named file for the full text and follow that. Do not invent the missing part. The source always wins.
@@ -98,12 +98,12 @@ Internal — no API surface.
 
 ## Checklist
 
-- [ ] Read the current page and its in-page `AiCareStatus`, `Section`, `SidebarCard` — `app/myGarden/[id]/page.tsx`
-- [ ] Derive the state with `getCareTipsState(plant)`; show `CareTipStateLabel` next to the name
-- [ ] Failed state: fixed sentence from `uiStrings` + retry calling `generateCareTips(id)`; never print `aiError`
-- [ ] Remove the code that drops the last character of each tip; fix the typo
-- [ ] Add a back `Link` to `/myGarden`; not-found branch with back link
-- [ ] Move all text to `lib/uiStrings.ts`
+- [x] Read the current page and its in-page `AiCareStatus`, `Section`, `SidebarCard` — `app/myGarden/[id]/page.tsx`
+- [x] Derive the state with `getCareTipsState(plant)`; show `CareTipStateLabel` next to the name
+- [x] Failed state: fixed sentence from `uiStrings` + retry calling `generateCareTips(id)`; never print `aiError`
+- [x] Remove the code that drops the last character of each tip; fix the typo
+- [x] Add a back `Link` to `/myGarden`; not-found branch with back link
+- [x] Move all text to `lib/uiStrings.ts`
 
 ## Edge cases
 
