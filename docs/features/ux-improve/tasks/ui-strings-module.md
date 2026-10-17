@@ -9,8 +9,8 @@ files_hint: ["lib/uiStrings.ts"]
 owner: "Orest Lyubinets"
 estimate: "S"
 context_budget: "M"
-status: "todo"
-step: ""
+status: "done"
+step: "COMMIT"
 ---
 
 > **To the executing agent:** work from what is inlined here. If a slice is insufficient, ambiguous, or contradicts the code in front of you, open the named file for the full text and follow that. Do not invent the missing part. The source always wins.
@@ -84,9 +84,9 @@ Internal — no API surface.
 
 ## Checklist
 
-- [ ] Create a typed `uiStrings` object grouped by screen (dashboard, status, state labels, empty state, plant page, not found, removal dialog); plain strings or small functions for `{name}` — `lib/uiStrings.ts`
-- [ ] Fix the old typo «Last watred» by supplying the correct text for the plant page sidebar — `lib/uiStrings.ts`
-- [ ] Do not touch pages yet; components adopt the strings in T4–T7
+- [x] Create a typed `uiStrings` object grouped by screen (dashboard, status, state labels, empty state, plant page, not found, removal dialog); plain strings or small functions for `{name}` — `lib/uiStrings.ts`
+- [x] Fix the old typo «Last watred» by supplying the correct text for the plant page sidebar — `lib/uiStrings.ts`
+- [x] Do not touch pages yet; components adopt the strings in T4–T7
 
 ## Edge cases
 
