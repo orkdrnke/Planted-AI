@@ -39,7 +39,7 @@
         "lib/careTipsState.test.ts"
       ],
       "file": "docs/features/ux-improve/tasks/care-tips-state-functions.md",
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "T3",

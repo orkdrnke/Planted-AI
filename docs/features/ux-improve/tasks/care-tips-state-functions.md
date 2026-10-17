@@ -9,8 +9,8 @@ files_hint: ["lib/careTipsState.ts", "lib/careTipsState.test.ts"]
 owner: "Orest Lyubinets"
 estimate: "S"
 context_budget: "M"
-status: "todo"
-step: ""
+status: "done"
+step: "COMMIT"
 ---
 
 > **To the executing agent:** work from what is inlined here. If a slice is insufficient, ambiguous, or contradicts the code in front of you, open the named file for the full text and follow that. Do not invent the missing part. The source always wins.
@@ -96,10 +96,10 @@ Internal — no API surface.
 
 ## Checklist
 
-- [ ] Read `types/plant.ts` and `types/store.ts` for the exact `aiStatus` values and the tip fields — `types/plant.ts`, `types/store.ts`
-- [ ] Implement `getCareTipsState(plant)` returning `"ready" | "generating" | "failed"`; «stored tips» = any AI tip field present — `lib/careTipsState.ts`
-- [ ] Implement `getCollectionStatus(plants)` returning `{ total, ready, generating, failed }` — `lib/careTipsState.ts`
-- [ ] Unit tests for every rule and the sum invariant — `lib/careTipsState.test.ts`
+- [x] Read `types/plant.ts` and `types/store.ts` for the exact `aiStatus` values and the tip fields — `types/plant.ts`, `types/store.ts`
+- [x] Implement `getCareTipsState(plant)` returning `"ready" | "generating" | "failed"`; «stored tips» = any AI tip field present — `lib/careTipsState.ts`
+- [x] Implement `getCollectionStatus(plants)` returning `{ total, ready, generating, failed }` — `lib/careTipsState.ts`
+- [x] Unit tests for every rule and the sum invariant — `lib/careTipsState.test.ts`
 
 ## Edge cases
 

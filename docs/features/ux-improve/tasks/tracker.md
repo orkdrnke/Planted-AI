@@ -9,7 +9,7 @@
 | # | Task | Layer | Owner | Estimate | Blocked by | Status | Step |
 |---|---|---|---|---|---|---|---|
 | T1 | Add short watering and light notes to the care-tips schema, type and prompt | domain | Orest Lyubinets | M | — | done | COMMIT |
-| T2 | Add getCareTipsState and getCollectionStatus pure functions with unit tests | domain | Orest Lyubinets | S | — | todo | — |
+| T2 | Add getCareTipsState and getCollectionStatus pure functions with unit tests | domain | Orest Lyubinets | S | — | done | COMMIT |
 | T3 | Create lib/uiStrings.ts with the Ukrainian text of the dashboard, plant page and removal dialog | ui | Orest Lyubinets | S | — | todo | — |
 | T4 | Build CareTipStateLabel, CollectionStatus, EmptyState and PlantListItem components | ui | Orest Lyubinets | M | T2, T3 | todo | — |
 | T5 | Rebuild /myGarden as the dashboard: status, responsive list, empty state, highlight | ui | Orest Lyubinets | M | T1, T4 | todo | — |
