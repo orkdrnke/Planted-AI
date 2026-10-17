@@ -10,7 +10,7 @@ updated_at: "2026-10-17"
 
 ## Platform decisions
 
-- **Posture:** responsive-both — `docs/design-system.md` is absent, so assumed from US-05 (phone and desktop); the desktop layout is the reference and the phone layout must not need sideways scrolling. On a phone-sized screen each plant may be a card instead of a table row (AC-09).
+- **Posture:** responsive-both — taken from `docs/design-system.md` (`platform_posture: responsive-both`), consistent with US-05 (phone and desktop); the desktop layout is the reference and the phone layout must not need sideways scrolling. On a phone-sized screen each plant may be a card instead of a table row (AC-09).
 - The dashboard is a page, not a dialog. Opening a plant is a navigation to the plant page, and returning goes back to the dashboard.
 - The care-tip state is a text label next to the plant name in each row or card (AC-01, AC-10).
 - Each plant row (or card) is one focusable item opened with Enter (AC-10).
