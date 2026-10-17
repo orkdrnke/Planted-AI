@@ -9,8 +9,8 @@ files_hint: ["app/addPlant/page.test.tsx"]
 owner: "Orest Lyubinets"
 estimate: "XS"
 context_budget: "S"
-status: "todo"
-step: "—"
+status: "done"
+step: "COMMIT"
 ---
 
 # T11 — Test that submitting the add form marks the new plant and lands on the dashboard
@@ -25,9 +25,12 @@ covered by the dashboard tests; this task covers the form half — submit → `a
 
 ## Checklist
 
-- [ ] Component test fills the required fields, submits, asserts `replace("/myGarden")` and that the store's `newPlantId` points at the new plant (`fetch` mocked, no real OpenAI call)
-- [ ] Invalid form does not navigate
+- [x] Component test fills the required fields, submits, asserts `replace("/myGarden")` and that the store's `newPlantId` points at the new plant (`generateCareTips` stubbed, no real OpenAI call)
+- [x] Invalid form does not navigate
+
+Note: green on the first run (coverage-only task); a mutation (`replace("/")`) turned it red, so the test is not weak.
+Found on the way, out of scope: the type `Select` trigger has no accessible name (the form label is not linked to it).
 
 ## Definition of Done
 
-- [ ] `pnpm typecheck`, `pnpm lint`, `pnpm test` clean
+- [x] `pnpm typecheck`, `pnpm lint`, `pnpm test` clean

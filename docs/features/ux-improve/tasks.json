@@ -230,7 +230,7 @@
         "app/addPlant/page.test.tsx"
       ],
       "file": "docs/features/ux-improve/tasks/review-fix-add-form-test.md",
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "T12",
