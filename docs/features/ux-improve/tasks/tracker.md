@@ -16,6 +16,6 @@
 | T6 | Update the plant page: back link, state label, fixed failure sentence with retry, full tips, not-found | ui | Orest Lyubinets | M | T2, T3, T4 | done | COMMIT |
 | T7 | Add RemovePlantDialog on the plant page and navigate back to the dashboard after removal | ui | Orest Lyubinets | S | T3, T6 | done | COMMIT |
 | T8 | Move the text of the landing page, add-plant form and header into uiStrings in Ukrainian | ui | Orest Lyubinets | M | T3 | done | COMMIT |
-| T9 | Run all checks, audit accessibility and performance, and update AGENTS.md and spec wording | tests | Orest Lyubinets | S | T1, T2, T3, T4, T5, T6, T7, T8 | todo | — |
+| T9 | Run all checks, audit accessibility and performance, and update AGENTS.md and spec wording | tests | Orest Lyubinets | S | T1, T2, T3, T4, T5, T6, T7, T8 | done | COMMIT |
 
 **Total:** 9 tasks, ~6 person-days.

@@ -9,8 +9,8 @@ files_hint: ["AGENTS.md", "docs/features/ux-improve/spec.md", "docs/features/ux-
 owner: "Orest Lyubinets"
 estimate: "S"
 context_budget: "S"
-status: "todo"
-step: ""
+status: "done"
+step: "COMMIT"
 ---
 
 > **To the executing agent:** work from what is inlined here. If a slice is insufficient, ambiguous, or contradicts the code in front of you, open the named file for the full text and follow that. Do not invent the missing part. The source always wins.
@@ -80,11 +80,29 @@ Internal — no API surface.
 
 ## Checklist
 
-- [ ] Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` and record the output
-- [ ] Seed 100 plants in a scratch run, take performance traces on the production build, record dashboard render and plant-open times
-- [ ] Run axe on the dashboard; manual 360 px check; manual Tab/Enter walk-through
-- [ ] Update `AGENTS.md` §10 (UI text is Ukrainian) and note the shared schema now has the two short fields
-- [ ] Align `spec.md` (AC-02 labels, AC-05, §6.1, §8 remove placement) and `ux-flows.md` with the SAD — docs only, ask the owner before rewording ACs
+- [x] Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` and record the output
+- [x] Seed 100 plants in a scratch run, take performance traces on the production build, record dashboard render and plant-open times
+- [x] Run axe on the dashboard; manual 360 px check; manual Tab/Enter walk-through
+- [x] Update `AGENTS.md` §10 (UI text is Ukrainian) and note the shared schema now has the two short fields
+- [x] Align `spec.md` (AC-02 labels, AC-05, §6.1, §8 remove placement) and `ux-flows.md` with the SAD — docs only, ask the owner before rewording ACs (owner approved 2026-10-17)
+
+## Results (2026-10-17)
+
+**Automated checks:** `pnpm typecheck` clean · `pnpm lint` «No ESLint warnings or errors» · `pnpm test` 10 files, 97 tests passed · `pnpm build` succeeded (`/myGarden` 5.68 kB / 136 kB first load, `/myGarden/[id]` 9.85 kB / 154 kB).
+
+**Browser run:** production build (`pnpm start`), headless Chrome driven by `playwright-core`, axe-core 4.10.2; `/api/ai-care-guide` mocked in the browser (no OpenAI calls, every 10th request answered 502). Collection grown to 100 plants through the add form (7 seed + 93; final status «Рослин: 100 · Готово: 84 · Генерується: 0 · Помилка: 16»).
+
+| Check | Target | Result |
+|---|---|---|
+| Dashboard render, 100 plants (client navigation start → 100 rows in the DOM, 5 runs) | ≤ 1 s | 56–75 ms, median 64 ms ✅ |
+| Open a plant from a row (click → plant page `h1`, 5 runs) | ≤ 300 ms | 57–64 ms, median 64 ms ✅ |
+| 360 px: sideways scroll | none | `scrollWidth` 360 ✅ |
+| 360 px: short notes shown in full | not cut | 0 of 100 cut ✅ |
+| 360 px: long name truncated, state label on screen | yes | yes ✅ |
+| Keyboard: each row one Tab stop, Enter opens | yes | 7/7 rows focused exactly once; Enter opened the plant page; `focus-visible` ring present ✅ |
+| axe serious / critical (dashboard wide + phone at 100 plants, plant page ready + failed) | 0 | 0 ✅ (no `color-contrast` violations) |
+
+Timings are in-page `performance.now()` deltas including driver overhead, not DevTools traces; they are far enough under target to be indicative. **Moderate axe findings (not blocking, pre-existing):** `landmark-one-main` / `region` — `app/layout.tsx` has no `<main>`; `heading-order` — the plant page goes from `h1` to the `h3` section headings. Recorded in AGENTS.md §13.
 
 ## Edge cases
 

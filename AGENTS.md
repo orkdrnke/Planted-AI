@@ -9,7 +9,7 @@ The primary goal is to explore modern frontend development patterns and AI integ
 The application allows users to:
 
 - Add plants to their personal collection.
-- View the collection in a table.
+- View the collection on a dashboard (`/myGarden`): collection status and one responsive row or card per plant.
 - Open a dedicated page for an individual plant.
 - Generate plant care recommendations using the OpenAI API.
 - Store plant data in a client-side Zustand store.
@@ -183,7 +183,8 @@ Relevant files include:
 - `types/plant.ts`
 - `types/store.ts`
 - `schemas/plantFormSchema.ts`
-- `schemas/careTipsSchema.ts` — AI care tips schema shared by the server and the client; it must stay free of server-only imports.
+- `schemas/careTipsSchema.ts` — AI care tips schema shared by the server and the client; it must stay free of server-only imports. The 40-character limit on `wateringShort` / `sunlightShort` is a `superRefine`, because strict structured output rejects `maxLength`; an over-long note fails generation.
+- `lib/careTipsState.ts` — `getCareTipsState(plant)` / `getCollectionStatus(plants)`, the only place the ready / generating / failed rule lives (stored tips win; no tips and no generation is failed).
 
 Inspect these files before changing the plant model or form contract.
 
@@ -195,7 +196,7 @@ The current `TPlant` type (`types/plant.ts`) contains:
 
 - Managed by the store: `id`.
 - From the form (`schemas/plantFormSchema.ts`), all strings: `name`, `type`, `size`, `amount`, `price` (required), `dest` and `dateAdded` (optional).
-- AI-generated (optional): `botanicalName`, `wateringFrequency`, `sunlightNeeds`, `soilType`, `temperatureRange`, `careTips` (`string[]`).
+- AI-generated (optional): `botanicalName`, `wateringFrequency`, `wateringShort`, `sunlightNeeds`, `sunlightShort`, `soilType`, `temperatureRange`, `careTips` (`string[]`). The short fields are 2–4 word notes shown on the dashboard; the full text is shown on the plant page.
 - Other (optional, not set by any UI yet): `nextFertilize`, `notes`, `imageUrl`, `lastWatered`.
 
 Notes:
@@ -319,7 +320,8 @@ General rules:
 - Do not silently change existing behavior.
 - Remove unused imports and variables introduced by your changes.
 - Avoid unrelated formatting changes.
-- Keep UI text and code comments in English.
+- Product UI text is Ukrainian and lives only in `lib/uiStrings.ts`; components import it instead of hard-coding strings (ADR-0003 of `ux-improve`). Stored data values such as `PLANT_TYPES` stay English; translate them for display with `uiStrings.plantTypeLabel`.
+- Keep code comments in English.
 - Keep explanations and development discussions with the user in Ukrainian.
 
 ## 11. Tooling and Verification
@@ -332,7 +334,7 @@ After making changes, run the most relevant available checks, such as:
 
 - TypeScript type checking — `pnpm typecheck`.
 - ESLint — `pnpm lint`.
-- Tests — `pnpm test` (Vitest, `*.test.ts` next to the tested file). Tests must not call the real OpenAI API; mock `openai` or `@/lib/aiHelpers`.
+- Tests — `pnpm test` (Vitest, `*.test.ts` / `*.test.tsx` next to the tested file). `*.test.ts` run in node; component tests (`*.test.tsx`) start with a `// @vitest-environment jsdom` docblock and use Testing Library (mock `next/navigation` where a page uses it). Tests must not call the real OpenAI API; mock `openai`, `@/lib/aiHelpers` or `fetch`.
 - Production build — `pnpm build`.
 
 `next dev` does not run a full type check, so a working dev server does not guarantee that `pnpm build` passes.
@@ -410,7 +412,8 @@ The following limitations are known or expected in the current MVP and must be v
 - AI-generated recommendations may fail or be inaccurate.
 - Durable background processing is not implemented.
 - Search, photo capture, and other routes may be incomplete or placeholders.
-- AI loading, retry, and failure states are shown on the plant detail page and as a row icon in `/myGarden`; there are no UI tests for them.
+- AI loading, retry, and failure states are shown on the plant detail page and as a text state label on each `/myGarden` row; they have component tests, but layout, keyboard and accessibility checks are manual (browser + axe).
+- The app layout has no `<main>` landmark and the plant page jumps from `h1` to `h3` (moderate axe findings, not fixed yet).
 
 Do not silently expand the scope to address these limitations during unrelated work.
 
