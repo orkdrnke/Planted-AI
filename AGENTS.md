@@ -341,6 +341,8 @@ Use the actual scripts defined in `package.json`; do not assume that a script ex
 
 Do not prefix shell commands with `cd`; the session already runs in the repository root. Use repo-relative or absolute paths. Reads outside the working directories are blocked (`permissions.blockReadsOutsideWorkingDirectories`), and paths after `cd` cannot be checked before the command runs, so such commands are rejected.
 
+Avoid inline interpreters (`python3 -c`, `node -e`, `bash -c`, `eval`) for reading files; use `jq`, `cat`, `grep` or the Read tool. The read block cannot analyze inline code, so such commands require manual approval.
+
 If a check fails:
 
 - Determine whether the failure was introduced by your changes.
