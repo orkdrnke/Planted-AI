@@ -8,7 +8,7 @@ acs: ["AC-02", "AC-06", "AC-08"]
 files_hint: ["lib/uiStrings.ts"]
 owner: "Orest Lyubinets"
 estimate: "S"
-context_budget: "S"
+context_budget: "M"
 status: "todo"
 step: ""
 ---
