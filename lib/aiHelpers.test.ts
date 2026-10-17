@@ -12,7 +12,9 @@ vi.mock("openai", () => ({
 const careTips = {
   botanicalName: "Monstera deliciosa",
   wateringFrequency: "Once a week",
+  wateringShort: "Weekly",
   sunlightNeeds: "Bright indirect light",
+  sunlightShort: "Bright, indirect",
   soilType: "Well-draining",
   temperatureRange: "18-27°C",
   careTips: ["Wipe the leaves"],
@@ -66,6 +68,30 @@ describe("generatePlantCareTips", () => {
     });
 
     expect(await generatePlantCareTips({ name: "Monstera" })).toBeNull();
+  });
+
+  it("asks for short watering and light notes", async () => {
+    parseMock.mockResolvedValue({ status: "completed", output_parsed: careTips });
+
+    await generatePlantCareTips({ name: "Monstera" });
+
+    const { input, text } = parseMock.mock.calls[0][0];
+    expect(text.format.schema.required).toEqual(
+      expect.arrayContaining(["wateringShort", "sunlightShort"])
+    );
+    expect(input).toContain("wateringShort");
+    expect(input).toContain("sunlightShort");
+    expect(input).toContain("40 characters");
+  });
+
+  it("does not send maxLength, which strict structured output rejects", async () => {
+    parseMock.mockResolvedValue({ status: "completed", output_parsed: careTips });
+
+    await generatePlantCareTips({ name: "Monstera" });
+
+    expect(JSON.stringify(parseMock.mock.calls[0][0].text.format.schema)).not.toContain(
+      "maxLength"
+    );
   });
 
   it("uses a token limit that fits the full care tips", async () => {

@@ -1,6 +1,10 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
-import { CareTipsSchema, TCareTips } from "@/schemas/careTipsSchema";
+import {
+  CareTipsSchema,
+  SHORT_NOTE_MAX_LENGTH,
+  TCareTips,
+} from "@/schemas/careTipsSchema";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -13,6 +17,8 @@ export async function generatePlantCareTips(params: {
 
   const prompt = `
     You are a gardening assistant. Given the plant info below, return a JSON-like text matching the "care_tips" schema.
+    "wateringShort" and "sunlightShort" are short notes of 2-4 words (at most ${SHORT_NOTE_MAX_LENGTH} characters)
+    summarizing "wateringFrequency" and "sunlightNeeds", e.g. "Once a week" or "Bright, indirect".
     Plant name: "${name}"
     Type: "${type ?? "unspecified"}"
     dest: "${dest ?? "unspecified"}"

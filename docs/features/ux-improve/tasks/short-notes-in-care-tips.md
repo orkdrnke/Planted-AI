@@ -9,8 +9,8 @@ files_hint: ["schemas/careTipsSchema.ts", "types/plant.ts", "lib/aiHelpers.ts", 
 owner: "Orest Lyubinets"
 estimate: "M"
 context_budget: "S"
-status: "todo"
-step: ""
+status: "done"
+step: "COMMIT"
 ---
 
 > **To the executing agent:** work from what is inlined here. If a slice is insufficient, ambiguous, or contradicts the code in front of you, open the named file for the full text and follow that. Do not invent the missing part. The source always wins.
@@ -80,12 +80,14 @@ No DB changes.
 
 ## Checklist
 
-- [ ] Check whether the installed `openai` SDK / `gpt-4o-mini` structured output enforces `maxLength`; record the result in the PR description — `schemas/careTipsSchema.ts`
-- [ ] Add `wateringShort` and `sunlightShort` to `CareTipsSchema` — `schemas/careTipsSchema.ts`
-- [ ] Add both as optional string fields to `TPlant` — `types/plant.ts`
-- [ ] Ask for the two short notes (2–4 words, ≤ ~40 chars) in the prompt — `lib/aiHelpers.ts`
-- [ ] Confirm the store merges the new fields with the other AI fields (merge only AI fields by id) — `lib/store/plantsStore.ts`
-- [ ] Extend the existing tests with the new fields and a rejected over-long or missing short value — `lib/aiHelpers.test.ts`, `app/api/ai-care-guide/route.test.ts`, `lib/store/plantsStore.test.ts`
+- [x] Check whether the installed `openai` SDK / `gpt-4o-mini` structured output enforces `maxLength`; record the result in the PR description — `schemas/careTipsSchema.ts`
+- [x] Add `wateringShort` and `sunlightShort` to `CareTipsSchema` — `schemas/careTipsSchema.ts`
+- [x] Add both as optional string fields to `TPlant` — `types/plant.ts`
+- [x] Ask for the two short notes (2–4 words, ≤ ~40 chars) in the prompt — `lib/aiHelpers.ts`
+- [x] Confirm the store merges the new fields with the other AI fields (merge only AI fields by id) — `lib/store/plantsStore.ts`
+- [x] Extend the existing tests with the new fields and a rejected over-long or missing short value — `lib/aiHelpers.test.ts`, `app/api/ai-care-guide/route.test.ts`, `lib/store/plantsStore.test.ts`
+
+**Length enforcement (implemented):** strict Structured Outputs support only `pattern` and `format` for strings (OpenAI Structured Outputs guide, «Supported schemas»), and `openai` 6.7.0's `zodTextFormat` passes a Zod `.max()` through as `maxLength`, so `.max()` is not used. The 40-character limit is a `superRefine` on `CareTipsSchema`: it is absent from the JSON schema sent to OpenAI, the prompt asks for ≤ 40 characters, and an over-long note **fails** generation — the SDK's parse throws (helper → `null` → route `502`) and the store's `safeParse` sets `aiStatus: "error"`. No clipping.
 
 ## Edge cases
 

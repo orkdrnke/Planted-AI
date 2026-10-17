@@ -20,7 +20,7 @@
         "lib/store/plantsStore.test.ts"
       ],
       "file": "docs/features/ux-improve/tasks/short-notes-in-care-tips.md",
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "T2",

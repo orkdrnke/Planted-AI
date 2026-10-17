@@ -12,7 +12,9 @@ const mockedGenerate = vi.mocked(generatePlantCareTips);
 const careTips = {
   botanicalName: "Monstera deliciosa",
   wateringFrequency: "Once a week",
+  wateringShort: "Weekly",
   sunlightNeeds: "Bright indirect light",
+  sunlightShort: "Bright, indirect",
   soilType: "Well-draining",
   temperatureRange: "18-27°C",
   careTips: ["Wipe the leaves"],

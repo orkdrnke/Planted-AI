@@ -15,7 +15,9 @@ export type TPlant = {
   // AI-generated info
   botanicalName?: string;
   wateringFrequency?: string;
+  wateringShort?: string;
   sunlightNeeds?: string;
+  sunlightShort?: string;
   soilType?: string;
   temperatureRange?: string;
   careTips?: string[];
