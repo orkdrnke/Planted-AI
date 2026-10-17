@@ -339,9 +339,49 @@ After making changes, run the most relevant available checks, such as:
 
 Use the actual scripts defined in `package.json`; do not assume that a script exists.
 
-Do not prefix shell commands with `cd`; the session already runs in the repository root. Use repo-relative or absolute paths. Reads outside the working directories are blocked (`permissions.blockReadsOutsideWorkingDirectories`), and paths after `cd` cannot be checked before the command runs, so such commands are rejected.
+### Shell commands and file access
 
-Avoid inline interpreters (`python3 -c`, `node -e`, `bash -c`, `eval`) for reading files; use `jq`, `cat`, `grep` or the Read tool. The read block cannot analyze inline code, so such commands require manual approval.
+`permissions.blockReadsOutsideWorkingDirectories` is enabled. Before a command runs, Claude Code must statically resolve every path it reads. A command whose paths cannot be resolved is rejected or needs manual approval. These rules apply to the main agent, all subagents and SDD plugin skills (`sdd:*`).
+
+Allowed directories: the repository root and `~/.claude`. The session already runs in the repository root.
+
+General rules:
+
+- Never prefix commands with `cd`. Use repo-relative paths (preferred) or absolute paths. Paths after `cd` are computed at run time, so the command is rejected.
+- No inline interpreters or dynamic shell: `python3 -c`, `python3 script.py`, `node -e`, `bash -c`, `sh -c`, `eval`, `xargs` with a command, `$(...)` or backticks that produce paths, process substitution `<(...)`.
+- Do not write scripts with `sed` or `awk` (`sed -i`, `sed 's/…/…/'`, `awk '…'`), `perl` or `tee`. They can read and write arbitrary files.
+- Do not use `/tmp` or other directories outside the repository. For temporary output, use the session scratchpad directory or an ignored path inside the repository.
+- Keep one command per call when possible. Long chains with `;` and `&&` are harder to analyze; split them into separate tool calls.
+
+Use the right tool for each operation:
+
+| Operation | Use | Do not use |
+|---|---|---|
+| Read a file or part of one | Read tool (`offset`/`limit`) | `cat`, `head`, `tail`, `sed -n` for large files |
+| Read a JSON field (`tasks.json`, `package.json`) | `jq '<filter>' <path>` or the Read tool | `python3 -c`, `node -e` |
+| Search content | `grep -rn '<pattern>' <path>` | `find … -exec grep`, `xargs grep` |
+| List files / count ADRs | `ls <path>`, `ls docs/features/<slug>/adr/` and count the results yourself | `ls … \| wc -l` inside `$(...)` |
+| Check that a file or directory exists | `test -f <path>` / `test -d <path>` / `test -e <path>` | — |
+| Create a file (including new directories) | Write tool (creates parent directories) | `mkdir -p` + `cat > file <<EOF`, `echo >`, `touch`, `cp` from a template |
+| Copy a template (`glossary`, `decide-adr`, `survey`) | Read the template, then Write the target file | `cp` |
+| Edit a file (frontmatter, `status`, `updated_at`, `tasks.json`) | Edit tool | `sed -i`, `jq … > tmp && mv`, Python |
+| Delete a file | `git rm <path>` (tracked) or `rm <repo-relative path>` (untracked); confirm with the user first | `rm -rf`, wildcards, absolute paths outside the repository |
+| Move or rename | `git mv <from> <to>` | `mv` across directories outside the repository |
+| Today's date for `updated_at` | Take it from the session context; if needed, `date +%F` | — |
+
+Git (only the paths of the current task):
+
+- Allowed: `git status --short`, `git diff`, `git diff --cached`, `git diff <base>..HEAD`, `git log --oneline`, `git log --grep SDD-Task`, `git show <rev>`, `git add <paths>`, `git commit -m "…" -- <paths>`, `git rm`, `git mv`.
+- Worktrees (`implement` in team or worktree mode): `git worktree add .worktrees/<name> HEAD`, `git -C .worktrees/<name> diff --binary HEAD`, `git apply --3way <file inside the repository or scratchpad>`, `git worktree remove .worktrees/<name>`. Keep worktrees inside `.worktrees/` in the repository, never outside it.
+- Forbidden (also by the SDD rules): `git add -A`, `git add .`, `--no-verify`, `--amend`, `push --force`, `reset --hard` without explicit approval.
+- `gh pr create` only at the `ship` stage and only after user confirmation. Pass the PR body with `--body-file <file inside the repository or scratchpad>`.
+
+Checks and tools:
+
+- Gate commands: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build`. Do not run `npx tsc`, `npx eslint` or similar instead of the scripts.
+- Mermaid validation (`_shared/mermaid-check.md`, `c4-mermaid-syntax.md`): do not use `npx -y @mermaid-js/mermaid-cli … -i <(awk …) -o /tmp/…`. First Write the diagrams into a `.mmd` file in the scratchpad, then run `npx -y @mermaid-js/mermaid-cli@11 -i <scratchpad>/x.mmd -o <scratchpad>/x.svg`. If `mmdc` is unavailable, use the plugin's manual syntax check.
+
+If a command is rejected or requires approval because of the read block, do not retry the same command. Rewrite it according to the table above.
 
 If a check fails:
 
