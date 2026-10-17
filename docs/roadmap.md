@@ -25,7 +25,7 @@ An invited user can register, keep a personal plant knowledge base with AI-gener
 | 4 | Personal collection in the database: each user sees only their own plants, starts empty, mock data removed | idea-brief.md §2 Problem | M | idea |
 | 5 | Care tips generated on the server and visible on any device, old `/api/ai-care-guide` route removed | idea-brief.md §6 Risks | M | idea |
 | 6 | Short onboarding shown only on first entry | idea-brief.md §2 Problem | S | idea |
-| 7 | Collection dashboard: essential columns, collection status, a click opens the plant page with care tips | idea-brief.md §2 Problem | S | spec'd → [`features/ux-improve`](features/ux-improve/spec.md) |
+| 7 | Collection dashboard: essential columns, collection status, a click opens the plant page with care tips | idea-brief.md §2 Problem | S | building → [`features/ux-improve`](features/ux-improve/spec.md) |
 | 8 | Open registration with abuse controls → see [Not yet specified](#not-yet-specified) | idea-brief.md §8 Open questions | fog | idea |
 
 ## Not yet specified
