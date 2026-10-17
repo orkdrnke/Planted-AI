@@ -339,6 +339,8 @@ After making changes, run the most relevant available checks, such as:
 
 Use the actual scripts defined in `package.json`; do not assume that a script exists.
 
+Do not prefix shell commands with `cd`; the session already runs in the repository root. Use repo-relative or absolute paths. Reads outside the working directories are blocked (`permissions.blockReadsOutsideWorkingDirectories`), and paths after `cd` cannot be checked before the command runs, so such commands are rejected.
+
 If a check fails:
 
 - Determine whether the failure was introduced by your changes.
