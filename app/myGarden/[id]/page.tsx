@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { usePlantStore } from "@/lib/store/plantsStore";
 import { Card } from "@/components/ui/card";
 import { TPlant } from "@/types/plant";
@@ -9,6 +10,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ChevronLeft, Loader2 } from "lucide-react";
 import { CareTipStateLabel } from "@/components/careTipStateLabel";
+import { RemovePlantDialog } from "@/components/removePlantDialog";
 import { getCareTipsState, TCareTipsState } from "@/lib/careTipsState";
 import { uiStrings } from "@/lib/uiStrings";
 
@@ -17,6 +19,12 @@ const { plantPage, notFound, cell } = uiStrings;
 export default function PlantDetailPage() {
   const { id } = useParams();
   const plant = usePlantStore((state) => state.plants.find((p) => p.id === id));
+  const removePlant = usePlantStore((state) => state.removePlant);
+  const router = useRouter();
+  const [removed, setRemoved] = useState(false);
+
+  // Navigation is async; render nothing instead of flashing the not-found screen
+  if (removed) return null;
 
   if (!plant) {
     return (
@@ -40,6 +48,12 @@ export default function PlantDetailPage() {
     state === "ready" && plant.careTips?.length
       ? plant.careTips.map((tip) => `• ${tip}`).join("\n")
       : tipText(undefined);
+
+  const confirmRemove = () => {
+    setRemoved(true);
+    removePlant(plant.id);
+    router.push("/myGarden");
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
@@ -130,6 +144,10 @@ export default function PlantDetailPage() {
           )}
         </SidebarCard>
       </aside>
+
+      <div className="flex justify-end lg:col-span-3">
+        <RemovePlantDialog plantName={plant.name} onConfirm={confirmRemove} />
+      </div>
     </div>
   );
 }

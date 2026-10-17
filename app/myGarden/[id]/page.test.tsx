@@ -1,16 +1,16 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PlantDetailPage from "./page";
 import { usePlantStore } from "@/lib/store/plantsStore";
 import { TPlant } from "@/types/plant";
 
-const { params } = vi.hoisted(() => ({ params: { id: "p1" } }));
+const { params, push } = vi.hoisted(() => ({ params: { id: "p1" }, push: vi.fn() }));
 
 vi.mock("next/navigation", () => ({
   useParams: () => params,
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push }),
 }));
 
 const basePlant: TPlant = {
@@ -52,6 +52,7 @@ describe("/myGarden/[id] plant page", () => {
   afterEach(() => {
     cleanup();
     generateCareTips.mockClear();
+    push.mockClear();
   });
 
   it("shows full care tips and every entered detail for a ready plant", () => {
@@ -153,6 +154,77 @@ describe("/myGarden/[id] plant page", () => {
 
     expect(container.textContent).toContain("Востаннє поливали:");
     expect(container.textContent).not.toMatch(/watred/i);
+  });
+
+  describe("removal", () => {
+    const otherPlant: TPlant = { ...readyPlant, id: "p2", name: "Фікус" };
+
+    function renderCollection() {
+      usePlantStore.setState({ plants: [readyPlant, otherPlant], generateCareTips });
+      return render(<PlantDetailPage />);
+    }
+
+    const openDialog = async () => {
+      await userEvent.click(screen.getByRole("button", { name: "Видалити рослину" }));
+      return screen.getByRole("dialog");
+    };
+
+    it("asks for confirmation naming the plant", async () => {
+      renderCollection();
+
+      const dialog = await openDialog();
+
+      expect(dialog.textContent).toContain("Видалити «Монстера»?");
+      expect(dialog.textContent).toContain("Цю дію не можна скасувати.");
+    });
+
+    it("keeps the plant and returns focus when cancelled", async () => {
+      renderCollection();
+      await openDialog();
+
+      await userEvent.click(screen.getByRole("button", { name: "Скасувати" }));
+
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(usePlantStore.getState().plants).toHaveLength(2);
+      expect(document.activeElement).toBe(
+        screen.getByRole("button", { name: "Видалити рослину" })
+      );
+      expect(push).not.toHaveBeenCalled();
+    });
+
+    it("keeps the plant when closed with Escape", async () => {
+      renderCollection();
+      await openDialog();
+
+      await userEvent.keyboard("{Escape}");
+
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(usePlantStore.getState().plants).toHaveLength(2);
+    });
+
+    it("removes only this plant and returns to the dashboard on confirm", async () => {
+      renderCollection();
+      const dialog = await openDialog();
+
+      await userEvent.click(within(dialog).getByRole("button", { name: "Видалити" }));
+
+      expect(usePlantStore.getState().plants).toEqual([otherPlant]);
+      expect(push).toHaveBeenCalledWith("/myGarden");
+      expect(screen.queryByText(/Рослину не знайдено/)).toBeNull();
+    });
+
+    it("shows the plant name with markup as plain text in the dialog title", async () => {
+      usePlantStore.setState({
+        plants: [{ ...readyPlant, name: "<i>x</i>" }],
+        generateCareTips,
+      });
+      render(<PlantDetailPage />);
+
+      const dialog = await openDialog();
+
+      expect(dialog.textContent).toContain("Видалити «<i>x</i>»?");
+      expect(dialog.querySelector("i")).toBeNull();
+    });
   });
 
   it("renders markup in the name as plain text", () => {

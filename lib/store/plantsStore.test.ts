@@ -231,6 +231,17 @@ describe("generateCareTips", () => {
   });
 });
 
+describe("removePlant", () => {
+  it("removes only the chosen plant and keeps the others with their tips", () => {
+    const withTips: TPlant = { ...otherPlant, ...careTips, aiStatus: "ready" };
+    usePlantStore.setState({ plants: [plant, withTips] });
+
+    usePlantStore.getState().removePlant("p1");
+
+    expect(usePlantStore.getState().plants).toEqual([withTips]);
+  });
+});
+
 describe("addPlant", () => {
   const fetchMock = vi.fn<typeof fetch>();
 

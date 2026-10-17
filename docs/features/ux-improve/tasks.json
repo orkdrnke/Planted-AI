@@ -148,7 +148,7 @@
         "app/myGarden/[id]/page.tsx"
       ],
       "file": "docs/features/ux-improve/tasks/remove-plant-dialog.md",
-      "status": "todo"
+      "status": "done"
     },
     {
       "id": "T8",

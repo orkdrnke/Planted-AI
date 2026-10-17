@@ -60,6 +60,7 @@ Reuse first. A screen composes these before any new component is proposed.
 | CollectionStatus | total + ready / generating / failed counts as text | `components/collectionStatus.tsx:5` |
 | EmptyState | message + prominent add action (link to `/addPlant`) | `components/emptyState.tsx:6` |
 | PlantListItem | one link per plant: table-like row on `md+`, card below; `highlighted`; exports `plantListColumns` | `components/plantListItem.tsx:23` |
+| RemovePlantDialog | remove trigger + confirmation naming the plant (composes Dialog + Button) | `components/removePlantDialog.tsx:19` |
 
 Not in the inventory yet (needed for the current UX work, so they would be new components):
 Badge, Skeleton, Alert/inline error, Toast, Tooltip. `implement` registers them here when added.

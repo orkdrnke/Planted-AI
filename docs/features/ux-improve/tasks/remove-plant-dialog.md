@@ -9,8 +9,8 @@ files_hint: ["components/removePlantDialog.tsx", "app/myGarden/[id]/page.tsx"]
 owner: "Orest Lyubinets"
 estimate: "S"
 context_budget: "S"
-status: "todo"
-step: ""
+status: "done"
+step: "COMMIT"
 ---
 
 > **To the executing agent:** work from what is inlined here. If a slice is insufficient, ambiguous, or contradicts the code in front of you, open the named file for the full text and follow that. Do not invent the missing part. The source always wins.
@@ -80,10 +80,10 @@ Internal — no API surface.
 
 ## Checklist
 
-- [ ] Create `RemovePlantDialog({ plantName, onConfirm })` from the existing `Dialog` parts — `components/removePlantDialog.tsx`
-- [ ] Add the destructive remove button to the plant page; on confirm call `removePlant(id)` and `router.push('/myGarden')` — `app/myGarden/[id]/page.tsx`
-- [ ] Make sure the page does not flash the not-found screen after removal (navigate before or guard) — `app/myGarden/[id]/page.tsx`
-- [ ] Text from `lib/uiStrings.ts`
+- [x] Create `RemovePlantDialog({ plantName, onConfirm })` from the existing `Dialog` parts — `components/removePlantDialog.tsx`
+- [x] Add the destructive remove button to the plant page; on confirm call `removePlant(id)` and `router.push('/myGarden')` — `app/myGarden/[id]/page.tsx`
+- [x] Make sure the page does not flash the not-found screen after removal (navigate before or guard) — `app/myGarden/[id]/page.tsx`
+- [x] Text from `lib/uiStrings.ts`
 
 ## Edge cases
 
