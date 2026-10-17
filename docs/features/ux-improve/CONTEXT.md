@@ -7,7 +7,7 @@ updated_at: "2026-10-17"
 
 ## Glossary
 
-- Care tips — the AI-generated recommendations for one plant (watering, light, soil, temperature, tips). NOT advice guaranteed to be correct; their state is ready, generating or failed. Generation starts automatically when a plant is added, so a plant with no tips and no generation under way is treated as failed.
+- Care tips — the AI-generated recommendations for one plant (watering, light, soil, temperature, tips). NOT advice guaranteed to be correct; their state is ready, generating or failed. Generation starts automatically when a plant is added, so a plant with no tips and no generation under way is treated as failed. A plant with stored tips is ready even if a later regeneration failed.
 - Collection — all plants that belong to one gardener. NOT the plant catalogue or search results.
 - Collection status — the short summary above the dashboard table: how many plants the collection holds and how many care tips are ready, generating or failed. NOT a to-do list or reminders.
 - Dashboard — the plant table page the gardener opens daily to see what is in the collection and its current state. NOT the welcome page.
