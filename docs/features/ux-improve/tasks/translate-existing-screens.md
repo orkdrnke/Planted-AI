@@ -9,8 +9,8 @@ files_hint: ["app/page.tsx", "app/addPlant/page.tsx", "components/header.tsx", "
 owner: "Orest Lyubinets"
 estimate: "M"
 context_budget: "S"
-status: "todo"
-step: ""
+status: "done"
+step: "COMMIT"
 ---
 
 > **To the executing agent:** work from what is inlined here. If a slice is insufficient, ambiguous, or contradicts the code in front of you, open the named file for the full text and follow that. Do not invent the missing part. The source always wins.
@@ -64,10 +64,12 @@ No spec §5 acceptance criterion applies. This task keeps existing behaviour unc
 
 ## Checklist
 
-- [ ] Add `landing`, `header`, `addPlantForm` groups to `lib/uiStrings.ts`
-- [ ] Replace the literals in `app/page.tsx`, `components/header.tsx`, `components/headerMenu.tsx`
-- [ ] Replace the form text and the Zod messages in `app/addPlant/page.tsx` and `schemas/plantFormSchema.ts` without changing the rules (name min 3, type min 5, dest min 5 when present)
-- [ ] Do not alter layout, fields or `addPlant` behaviour
+- [x] Add `landing`, `header`, `addPlantForm` groups to `lib/uiStrings.ts`
+- [x] Replace the literals in `app/page.tsx`, `components/header.tsx`, `components/headerMenu.tsx`
+- [x] Replace the form text and the Zod messages in `app/addPlant/page.tsx` and `schemas/plantFormSchema.ts` without changing the rules (name min 3, type min 5, dest min 5 when present)
+- [x] Do not alter layout, fields or `addPlant` behaviour
+
+**Plant type labels (implemented):** `PLANT_TYPES` values stay English — they are stored plant data and the `/img/<type>.png` file names. `uiStrings.plantTypeLabel(type)` translates them for display in the form select, the dashboard type cell (`components/plantListItem.tsx`) and the plant page category (`app/myGarden/[id]/page.tsx`); unknown values pass through unchanged.
 
 ## Edge cases
 

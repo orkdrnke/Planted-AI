@@ -52,7 +52,7 @@ export function PlantListItem({
           <CareTipStateLabel state={state} />
         </span>
         <span className="flex min-w-0 gap-1 text-gray-600 md:contents">
-          <span className="md:truncate">{plant.type}</span>
+          <span className="md:truncate">{uiStrings.plantTypeLabel(plant.type)}</span>
           <span aria-hidden="true" className="md:hidden">
             ·
           </span>

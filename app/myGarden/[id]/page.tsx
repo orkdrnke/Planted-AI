@@ -95,7 +95,10 @@ export default function PlantDetailPage() {
           <AiCareStatus plant={plant} state={state} />
 
           <div className="mt-6 space-y-4">
-            <Section label={plantPage.sections.category} value={plant.type || "—"} />
+            <Section
+              label={plantPage.sections.category}
+              value={plant.type ? uiStrings.plantTypeLabel(plant.type) : "—"}
+            />
             <Section
               label={plantPage.sections.watering}
               value={tipText(plant.wateringFrequency)}
