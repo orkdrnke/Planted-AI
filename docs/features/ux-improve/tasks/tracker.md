@@ -12,7 +12,7 @@
 | T2 | Add getCareTipsState and getCollectionStatus pure functions with unit tests | domain | Orest Lyubinets | S | — | done | COMMIT |
 | T3 | Create lib/uiStrings.ts with the Ukrainian text of the dashboard, plant page and removal dialog | ui | Orest Lyubinets | S | — | done | COMMIT |
 | T4 | Build CareTipStateLabel, CollectionStatus, EmptyState and PlantListItem components | ui | Orest Lyubinets | M | T2, T3 | done | COMMIT |
-| T5 | Rebuild /myGarden as the dashboard: status, responsive list, empty state, highlight | ui | Orest Lyubinets | M | T1, T4 | todo | — |
+| T5 | Rebuild /myGarden as the dashboard: status, responsive list, empty state, highlight | ui | Orest Lyubinets | M | T1, T4 | done | COMMIT |
 | T6 | Update the plant page: back link, state label, fixed failure sentence with retry, full tips, not-found | ui | Orest Lyubinets | M | T2, T3, T4 | todo | — |
 | T7 | Add RemovePlantDialog on the plant page and navigate back to the dashboard after removal | ui | Orest Lyubinets | S | T3, T6 | todo | — |
 | T8 | Move the text of the landing page, add-plant form and header into uiStrings in Ukrainian | ui | Orest Lyubinets | M | T3 | todo | — |

@@ -1,127 +1,76 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import Link from "next/link";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { CollectionStatus } from "@/components/collectionStatus";
+import { EmptyState } from "@/components/emptyState";
+import { PlantListItem, plantListColumns } from "@/components/plantListItem";
 import { usePlantStore } from "@/lib/store/plantsStore";
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { AlertCircle, Loader2 } from "lucide-react";
-import { TPlant } from "@/types/plant";
-import { calculateTotalCost, formatCurrency } from "@/lib/plantTotals";
+import { uiStrings } from "@/lib/uiStrings";
+import { cn } from "@/lib/utils";
 
-function PlantsTable() {
+const HIGHLIGHT_MS = 2000;
+
+function PlantList() {
   const plants = usePlantStore((state) => state.plants);
   const newPlantId = usePlantStore((state) => state.newPlantId);
   const clearNewPlantId = usePlantStore((state) => state.clearNewPlantId);
-  const highlightRef = useRef<HTMLTableRowElement | null>(null);
-  const router = useRouter();
-
-  const totalCost = calculateTotalCost(plants);
-
-  const redirectToPlant = (id: string) => {
-    router.push(`/myGarden/${id}`);
-  };
+  const { columns } = uiStrings.dashboard;
 
   useEffect(() => {
-    if (highlightRef.current) {
-      highlightRef.current.classList.add("animate-highlight");
-      const timeout = setTimeout(() => {
-        highlightRef.current?.classList.remove("animate-highlight");
-        clearNewPlantId();
-      }, 2000);
-      return () => clearTimeout(timeout);
-    }
+    if (!newPlantId) return;
+    const timeout = setTimeout(clearNewPlantId, HIGHLIGHT_MS);
+    return () => clearTimeout(timeout);
   }, [clearNewPlantId, newPlantId]);
 
+  if (plants.length === 0) return <EmptyState />;
+
   return (
-    <Table className="caption-top m-auto">
-      <TableCaption>Plants in my garden</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">Name</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Price</TableHead>
-          <TableHead>Size</TableHead>
-          <TableHead>Destination</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
+    <div>
+      {/* Column headings are only shown with the table-like layout */}
+      <div
+        aria-hidden="true"
+        className={cn(
+          "hidden gap-4 border-b px-3 pb-2 text-sm font-medium text-gray-600 md:grid",
+          plantListColumns
+        )}
+      >
+        <span>{columns.name}</span>
+        <span>{columns.type}</span>
+        <span>{columns.location}</span>
+        <span>{columns.watering}</span>
+        <span>{columns.light}</span>
+      </div>
+      <ul className="flex flex-col gap-3 md:gap-0">
         {plants.map((plant) => (
-          <TableRow
-            key={plant.name}
-            ref={plant.id === newPlantId ? highlightRef : null}
-            onClick={() => redirectToPlant(plant.id!)}
-            className="cursor-pointer hover:bg-muted"
-          >
-            <TableCell className="font-medium">
-              <span className="flex items-center gap-2">
-                {plant.name}
-                <AiStatusIcon status={plant.aiStatus} />
-              </span>
-            </TableCell>
-            <TableCell>{plant.type}</TableCell>
-            <TableCell>{plant.price}</TableCell>
-            <TableCell>{plant.size} cm</TableCell>
-            <TableCell>{plant.dest}</TableCell>
-            <TableCell className="text-right">{plant.amount}</TableCell>
-          </TableRow>
+          <PlantListItem
+            key={plant.id}
+            plant={plant}
+            highlighted={plant.id === newPlantId}
+          />
         ))}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={5}>Total price</TableCell>
-          <TableCell className="text-right">
-            {formatCurrency(totalCost)}
-          </TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+      </ul>
+    </div>
   );
 }
 
-function AiStatusIcon({ status }: { status: TPlant["aiStatus"] }) {
-  if (status === "generating") {
-    return (
-      <Loader2
-        className="size-4 animate-spin text-gray-500"
-        aria-label="Generating care tips"
-      />
-    );
-  }
-  if (status === "error") {
-    return (
-      <AlertCircle
-        className="size-4 text-red-600"
-        aria-label="Care tips generation failed"
-      />
-    );
-  }
-  return null;
-}
+export default function MyGardenPage() {
+  const plants = usePlantStore((state) => state.plants);
+  const { dashboard } = uiStrings;
 
-export default function myGarden() {
   return (
-    <div className="flex flex-col p-4 text-3xl max-w-4xl mx-auto">
-      <h1 className="text-4xl text-center font-[family-name:var(--font-geist-mono)]">
-        My Garden
-      </h1>
-      <PlantsTable />
-      <Link href="/addPlant" className="mt-4">
-        <Button variant="default" className="cursor-pointer w-50">
-          Add a Plant
-        </Button>
-      </Link>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 p-4">
+      <h1 className="text-3xl font-semibold md:text-4xl">{dashboard.title}</h1>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <CollectionStatus plants={plants} />
+        {plants.length > 0 && (
+          <Button asChild className="self-start md:self-auto">
+            <Link href="/addPlant">{dashboard.addPlant}</Link>
+          </Button>
+        )}
+      </div>
+      <PlantList />
     </div>
   );
 }

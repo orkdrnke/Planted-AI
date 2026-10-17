@@ -9,8 +9,8 @@ files_hint: ["app/myGarden/page.tsx", "lib/plantTotals.ts", "lib/plantTotals.tes
 owner: "Orest Lyubinets"
 estimate: "M"
 context_budget: "M"
-status: "todo"
-step: ""
+status: "done"
+step: "COMMIT"
 ---
 
 > **To the executing agent:** work from what is inlined here. If a slice is insufficient, ambiguous, or contradicts the code in front of you, open the named file for the full text and follow that. Do not invent the missing part. The source always wins.
@@ -130,12 +130,12 @@ Internal — no API surface.
 
 ## Checklist
 
-- [ ] Replace the table with `CollectionStatus` + a list of `PlantListItem`, keyed by `plant.id` — `app/myGarden/page.tsx`
-- [ ] Render `EmptyState` (with zero-count status) when there are no plants — `app/myGarden/page.tsx`
-- [ ] Keep the `newPlantId` highlight for ~2 s then `clearNewPlantId` — `app/myGarden/page.tsx`
-- [ ] Keep an add action in the header of the page (link to `/addPlant`); no remove, no retry here
-- [ ] Delete `lib/plantTotals.ts` and its test since nothing uses them (confirm with `grep` first) — `lib/plantTotals.ts`, `lib/plantTotals.test.ts`
-- [ ] All text from `lib/uiStrings.ts`
+- [x] Replace the table with `CollectionStatus` + a list of `PlantListItem`, keyed by `plant.id` — `app/myGarden/page.tsx`
+- [x] Render `EmptyState` (with zero-count status) when there are no plants — `app/myGarden/page.tsx`
+- [x] Keep the `newPlantId` highlight for ~2 s then `clearNewPlantId` — `app/myGarden/page.tsx`
+- [x] Keep an add action in the header of the page (link to `/addPlant`); no remove, no retry here (hidden when empty, where `EmptyState` carries the add action)
+- [x] Delete `lib/plantTotals.ts` and its test since nothing uses them (confirm with `grep` first) — `lib/plantTotals.ts`, `lib/plantTotals.test.ts`
+- [x] All text from `lib/uiStrings.ts`
 
 ## Edge cases
 
