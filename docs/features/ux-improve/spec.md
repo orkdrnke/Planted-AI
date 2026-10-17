@@ -178,3 +178,64 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 - [ ] Before accounts, the starting (seed) plants have no care tips, so by the glossary rule every one counts as failed and the first view reads "N failed". Is seed data in scope, and what is the expected first-open status? Default now: out of scope, left as is, shown as failed. — owner: Orest Lyubinets, due: before sdd:design
 - [ ] How is the short watering/light note produced: a separate short value stored with the care tips, or a shortened form of the existing text? Default now: a short form of a few words, not the full sentence. — owner: Orest Lyubinets, due: before sdd:design
 - [x] Is the dashboard released before or after accounts and per-user collections? Decided 2026-10-17: it may ship before accounts on the current collection holder; AC-07 is verified after roadmap step 4 (this overrides the roadmap's step 4 → step 7 edge). — owner: Orest Lyubinets
+
+## Test plan
+
+### AC coverage
+
+| AC (spec.md §5) | Test name (intent-based) | Level | Expected outcome |
+|---|---|---|---|
+| AC-01 happy path | added plant is marked as the new plant for highlighting | unit | after `addPlant` the store points at the new plant; clearing resets it |
+| AC-01 happy path | plant row shows the five essential fields and the care-tip state next to the name | component | name, type, location, watering, light and the state label are shown; price, size and amount are not |
+| AC-01 happy path | newly added plant row is highlighted | component | the row for the new plant carries the highlight, other rows do not |
+| AC-01 happy path | adding a plant lands on a dashboard with its row highlighted | e2e-through-UI (manual) | after submitting the form the dashboard shows the new row highlighted, then the highlight fades |
+| AC-02 domain invariant | care-tip state follows the single rule | unit | generating → generating; failed → failed; no tips and no generation → failed; stored tips with a failed regeneration → ready |
+| AC-02 domain invariant | plant without tips still shows its row with state labels in place of watering and light | component | watering and light cells show the pending or unavailable text; no retry control on the row |
+| AC-02 domain invariant | plant without a location shows a dash | component | the location cell shows a dash, not an empty cell |
+| AC-03 happy path | collection status counts every plant in exactly one state | unit | counts per state match the input and add up to the number of plants |
+| AC-03 happy path | collection status is shown as text above the list | component | the number of plants and each state count are readable as text |
+| AC-04 domain invariant | status stays in step with the collection after add, remove and finished generation | unit | status derived from the store after each change equals the status of the listed plants |
+| AC-04 domain invariant | dashboard status and rows agree after a store change | component | after a plant is added or removed in the store, the status counts and the row count change together |
+| AC-05 happy path | plant row links to its plant page | component | the row is a link to that plant's page |
+| AC-05 happy path | plant page shows full care tips and every entered detail | component | all care tips plus price, size and amount are shown; the rest of the page is unchanged |
+| AC-06 error | failed generation leaves the plant's entered details intact and can be retried | unit | after a failed generation the user-entered fields are unchanged; a retry starts a new request |
+| AC-06 error | plant page shows one plain failure sentence with a retry action | component | for a failed plant and for a plant with no tips and no generation the same sentence is shown, no technical error text, the plant's details stay visible |
+| AC-06 error | retry action asks for new care tips for this plant | component | activating retry requests care tips for that plant only |
+| AC-07 authorization | unknown plant shows the not-found message | component | a plant page for an identifier not in the collection shows the "plant not found" message with a way back to the dashboard |
+| AC-07 authorization | another gardener's plant looks the same as a missing one | integration (deferred — after roadmap step 4) | the not-found message is identical to the unknown-plant case and the dashboard lists none of that gardener's plants; not written until per-user collections exist |
+| AC-08 cross-context | empty collection reports zero plants | unit | every count is zero for an empty collection |
+| AC-09 happy path | plant row keeps all essential information without cutting the short notes | component | name, type, location, watering, light and state label are present; a long name is truncated with the full name available; the short notes are not truncated |
+| AC-09 happy path | dashboard fits a phone-sized screen | e2e-through-UI (manual) | at 360 px wide every plant is readable with no sideways scrolling |
+| AC-10 cross-context | each plant row is one focusable item | component | the row contains exactly one focusable element, a link to the plant page, with no nested interactive elements |
+| AC-10 cross-context | care-tip state and collection status are conveyed in text | component | the state label and the status counts are present as text, not colour only |
+| AC-10 cross-context | dashboard is fully keyboard-operable and passes the accessibility audit | e2e-through-UI (manual) | Tab reaches every row once, Enter opens the plant; no serious or critical audit issues; text contrast ≥ 4.5:1 |
+| AC-11 happy path | removing a plant leaves the others untouched | unit | only the chosen plant is gone; other plants and their care tips are unchanged; status counts drop by one |
+| AC-11 happy path | removal asks for confirmation before removing | component | cancelling keeps the plant; confirming removes it and returns to the dashboard |
+
+### Edge cases / error paths
+
+- Plant name or care text containing markup → shown as plain text, never executed (component).
+- Plant name too long for the row → truncated in the row, shown in full on the plant page (component, AC-09).
+- Retry pressed while a generation is still running → no second request starts (unit, store).
+- Plant removed while its care tips are still generating → the late result is ignored and the plant does not reappear (unit, store).
+- Care-tip response that does not match the schema, including missing short watering or light notes → generation is marked failed, user-entered fields stay unchanged (unit, store and route).
+- Starting (seed) plants with no care tips → each counts as failed and the status reports them as failed (unit, spec §8 default).
+
+### Strategy
+
+- **Levels used:** unit (pure state rules, store actions, route and AI helper with the AI client mocked), component (UI components and the two pages rendered in a browser-like test environment with the store seeded and navigation mocked), e2e-through-UI (manual, recorded in T9). Component tests need a browser-like environment and a component render library added as dev dependencies; `implement` sets this up in the first task that writes a component test (T4) and keeps the existing node environment for `*.test.ts`.
+- **Test data:** small plant factories covering each care-tip state (ready, generating, failed, no tips) plus a plant with no location and one with a very long name. No real AI requests: the AI client or `fetch` is always mocked.
+- **Cleanup boundary:** per test — the store is reset to a known collection before each test so runs are independent.
+- **Integration with a real dependency:** N/A for this feature — there is no datastore; the collection lives in the client-side store.
+
+### NFR validation
+
+- Opening a plant from a row → manual browser performance trace on a production build with 100 plants: from the click to the plant page fully shown ≤ 300 ms.
+- Dashboard first render → same setup: from navigation start to the list fully shown ≤ 1 s.
+- Smallest width and accessibility → covered by the manual AC-09 and AC-10 rows above.
+- No load test: the targets are single-user render timings, not throughput; the load tool already in your repo, or e.g. k6 or Locust, is not needed here.
+
+### CI placement
+
+- On every PR: unit and component suites (`pnpm test`).
+- Before release: the manual e2e-through-UI rows and the NFR traces, recorded in T9.
