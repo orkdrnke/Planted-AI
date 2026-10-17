@@ -26,6 +26,7 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 - A gardener understands the state of the whole collection within seconds of opening the dashboard.
 - The table shows only the information needed for daily use, and works on a phone-sized screen.
 - A gardener reaches the full care tips of any plant in one step from the dashboard.
+- A gardener can remove a plant from the collection, so the dashboard stays an accurate picture of what is kept.
 
 ## 3. Non-goals
 
@@ -66,19 +67,25 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 **I want** the dashboard to be readable and usable on a phone as well as on a desktop, with the keyboard as well as a pointer
 **So that** I can check my plants from whichever device I have
 
+### US-06: Remove a plant
+
+**As a** gardener
+**I want** to remove a plant from my collection
+**So that** the dashboard shows only the plants I still keep
+
 ## 5. Acceptance criteria
 
 ### AC-01 (US-01) — happy path
 
 **Given** a gardener has several plants in the collection
 **When** the gardener opens the dashboard
-**Then** each plant is one row showing its name, type, location, watering and light needs, with the state of its care tips shown next to the name, and price, size and amount are not shown in the table
+**Then** each plant is one row showing its name, type, location, watering and light needs, with the state of its care tips shown next to the name, and price, size and amount are not shown in the table; a plant that was just added is briefly highlighted, as it is today
 
 ### AC-02 (US-01) — domain invariant
 
 **Given** a plant whose care tips are still generating or failed (including a plant that has no tips and no generation under way, which counts as failed), so no watering or light information exists
 **When** the gardener opens the dashboard
-**Then** the plant is still listed with its name, type and location, and the watering and light cells show that tips are pending or unavailable, with a text label, instead of staying blank
+**Then** the plant is still listed with its name, type and location, and the watering and light cells each show the text label "Pending" (generating) or "Unavailable" (failed) instead of staying blank, and the dashboard offers no retry (retry is on the plant page, AC-06). A plant with no location entered shows a dash in the location cell instead of staying blank. A plant that has stored care tips counts as ready even when its latest regeneration failed: the stored tips decide the state and are shown
 
 ### AC-03 (US-02) — happy path
 
@@ -96,13 +103,13 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 
 **Given** a plant with ready care tips is listed on the dashboard
 **When** the gardener selects its row
-**Then** the plant page opens showing the full care tips and all the plant's details, including price, size and amount
+**Then** the plant page opens showing the full care tips and all the plant's details, including price, size and amount, with the rest of the current plant page left unchanged
 
 ### AC-06 (US-03) — error
 
 **Given** a plant whose care tips failed to generate, or that has no tips and no generation under way
 **When** the gardener opens its plant page from the dashboard
-**Then** the plant page explains in plain language that the tips could not be generated and offers a way to try again, while the plant and its entered details stay intact
+**Then** the plant page shows one plain-language sentence saying that the tips could not be generated (the same wording in both cases, with no technical error detail) and offers a way to try again, while the plant and its entered details stay intact
 
 ### AC-07 (US-03) — authorization
 
@@ -122,13 +129,19 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 
 **Given** a gardener opens the dashboard on a phone-sized screen
 **When** the page is shown
-**Then** all essential information for each plant is readable without sideways scrolling
+**Then** all essential information for each plant (name, type, location, watering, light, care-tip state) is readable without sideways scrolling; on a phone-sized screen each plant may be shown as a card instead of a table row, the watering and light short notes are shown in full, and a name too long for the space is truncated (the full name is on the plant page)
 
 ### AC-10 (US-05) — cross-context
 
 **Given** a gardener uses only the keyboard
 **When** the gardener moves through the dashboard
-**Then** every plant row can be reached and opened with the keyboard, and the collection status and care-tip state labels next to the plant name are conveyed in text and not by colour alone
+**Then** every plant row (or card on a phone-sized screen) can be reached with the Tab key as a single focusable item and opened with Enter, and the collection status and care-tip state labels next to the plant name are conveyed in text and not by colour alone
+
+### AC-11 (US-06) — happy path
+
+**Given** a gardener has plants in the collection
+**When** the gardener removes one of them
+**Then** that plant no longer appears on the dashboard, the other plants and their care tips are unchanged, and the collection status counts drop accordingly
 
 ## 6. Non-functional requirements
 
@@ -158,6 +171,10 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 
 ## 8. Open questions
 
+- [ ] §6 measurement bounds: which build (development or production), which start and end events for the 300 ms and 1 s targets, which accessibility audit tool and which severity counts as failing? Default now: production build, from click or navigation start to full content visible, axe with serious and critical issues failing. — owner: Orest Lyubinets, due: before sdd:plan-tests
+- [ ] Where is the remove control placed, and does removal ask for confirmation? Default now: a control on the dashboard row, with a confirmation step. — owner: Orest Lyubinets, due: before sdd:ux-flows
 - [x] Which exact columns? Decided 2026-10-17: name, type, location, watering, light; the care-tip state is a text label next to the name, not its own column. — owner: Orest Lyubinets
 - [x] Does "number of plants" count entries or the sum of the amount field? Decided 2026-10-17: entries (one row = one plant). — owner: Orest Lyubinets
+- [ ] Before accounts, the starting (seed) plants have no care tips, so by the glossary rule every one counts as failed and the first view reads "N failed". Is seed data in scope, and what is the expected first-open status? Default now: out of scope, left as is, shown as failed. — owner: Orest Lyubinets, due: before sdd:design
+- [ ] How is the short watering/light note produced: a separate short value stored with the care tips, or a shortened form of the existing text? Default now: a short form of a few words, not the full sentence. — owner: Orest Lyubinets, due: before sdd:design
 - [x] Is the dashboard released before or after accounts and per-user collections? Decided 2026-10-17: it may ship before accounts on the current collection holder; AC-07 is verified after roadmap step 4 (this overrides the roadmap's step 4 → step 7 edge). — owner: Orest Lyubinets
