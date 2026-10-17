@@ -178,6 +178,7 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 - [ ] Before accounts, the starting (seed) plants have no care tips, so by the glossary rule every one counts as failed and the first view reads "N failed". Is seed data in scope, and what is the expected first-open status? Default now: out of scope, left as is, shown as failed. — owner: Orest Lyubinets, due: before sdd:design
 - [ ] How is the short watering/light note produced: a separate short value stored with the care tips, or a shortened form of the existing text? Default now: a short form of a few words, not the full sentence. — owner: Orest Lyubinets, due: before sdd:design
 - [x] Is the dashboard released before or after accounts and per-user collections? Decided 2026-10-17: it may ship before accounts on the current collection holder; AC-07 is verified after roadmap step 4 (this overrides the roadmap's step 4 → step 7 edge). — owner: Orest Lyubinets
+- [ ] The removal dialog's close (X) button is announced in English ("Close", `components/ui/dialog.tsx:75`), against ADR-0003. Hide it with `showCloseButton={false}` (Cancel, Esc and the overlay already close the dialog) or feed a label from `lib/uiStrings.ts`? Deferred from review 2026-10-17 (F5). — owner: Orest Lyubinets, due: before the next UI feature's sdd:review
 
 ## Test plan
 
