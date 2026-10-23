@@ -1,21 +1,70 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import Link from "next/link";
+import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { usePlantStore } from "@/lib/store/plantsStore";
 import { Card } from "@/components/ui/card";
 import { TPlant } from "@/types/plant";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, ChevronLeft, Loader2 } from "lucide-react";
+import { CareTipStateLabel } from "@/components/careTipStateLabel";
+import { RemovePlantDialog } from "@/components/removePlantDialog";
+import { getCareTipsState, TCareTipsState } from "@/lib/careTipsState";
+import { uiStrings } from "@/lib/uiStrings";
+
+const { plantPage, notFound, cell } = uiStrings;
 
 export default function PlantDetailPage() {
   const { id } = useParams();
   const plant = usePlantStore((state) => state.plants.find((p) => p.id === id));
+  const removePlant = usePlantStore((state) => state.removePlant);
+  const router = useRouter();
+  const [removed, setRemoved] = useState(false);
 
-  if (!plant) return <div className="p-6">Рослину не знайдено 🌱</div>;
+  // Navigation is async; render nothing instead of flashing the not-found screen
+  if (removed) return null;
+
+  if (!plant) {
+    return (
+      <div className="space-y-4 p-6">
+        <h1 className="text-2xl font-semibold">{notFound.title}</h1>
+        <Button asChild variant="outline">
+          <Link href="/myGarden">{notFound.back}</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const state = getCareTipsState(plant);
+  // Text of an AI field: stored value when ready, otherwise the state label
+  const tipText = (value: string | undefined) => {
+    if (state === "generating") return cell.generating;
+    if (state === "failed") return cell.failed;
+    return value || cell.noLocation;
+  };
+  const careTips =
+    state === "ready" && plant.careTips?.length
+      ? plant.careTips.map((tip) => `• ${tip}`).join("\n")
+      : tipText(undefined);
+
+  const confirmRemove = () => {
+    setRemoved(true);
+    removePlant(plant.id);
+    router.push("/myGarden");
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+      <Link
+        href="/myGarden"
+        className="flex items-center gap-1 text-gray-700 hover:underline lg:col-span-3"
+      >
+        <ChevronLeft aria-hidden="true" className="size-4" />
+        {plantPage.back}
+      </Link>
+
       {/* === Left side === */}
       <div className="lg:col-span-2 space-y-6">
         {/* Photo */}
@@ -33,72 +82,75 @@ export default function PlantDetailPage() {
 
         {/* Details */}
         <Card className="p-6 space-y-4">
-          <h1 className="text-3xl font-semibold">{plant.name}</h1>
-          <p className="text-gray-500 italic">
-            plant&apos;s botanical name: {plant.botanicalName}
-          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <h1 className="text-3xl font-semibold break-words">{plant.name}</h1>
+            <CareTipStateLabel state={state} />
+          </div>
+          {plant.botanicalName && (
+            <p className="text-gray-500 italic">
+              {plantPage.botanicalName}: {plant.botanicalName}
+            </p>
+          )}
 
-          <AiCareStatus plant={plant} />
+          <AiCareStatus plant={plant} state={state} />
 
           <div className="mt-6 space-y-4">
-            <Section label="category" value={plant.type || "—"} />
             <Section
-              label="Watering Tips"
-              value={plant.wateringFrequency || "No tips available"}
+              label={plantPage.sections.category}
+              value={plant.type ? uiStrings.plantTypeLabel(plant.type) : "—"}
             />
             <Section
-              label="Light Requirements"
-              value={plant.sunlightNeeds || "No tips available"}
+              label={plantPage.sections.watering}
+              value={tipText(plant.wateringFrequency)}
             />
             <Section
-              label="Temperature Range"
-              value={plant.temperatureRange || "No tips available"}
+              label={plantPage.sections.light}
+              value={tipText(plant.sunlightNeeds)}
             />
             <Section
-              label="Soil Type"
-              value={plant.soilType || "No tips available"}
+              label={plantPage.sections.temperature}
+              value={tipText(plant.temperatureRange)}
             />
-            <Section
-              label="Care Tips"
-              value={
-                plant.careTips && plant.careTips.length > 0
-                  ? plant.careTips
-                      .map((tip) => `• ${tip.split("").slice(0, -1).join("")}`)
-                      .join("\n")
-                  : "No tips available"
-              }
-            />
+            <Section label={plantPage.sections.soil} value={tipText(plant.soilType)} />
+            <Section label={plantPage.sections.careTips} value={careTips} />
           </div>
         </Card>
       </div>
 
       {/* Right side sidebar */}
       <aside className="space-y-4">
-        <SidebarCard title="Last Watered">
+        <SidebarCard title={plantPage.sidebar.lastWatered}>
           <WateringInfo plant={plant} />
         </SidebarCard>
 
-        <SidebarCard title="Next Fertilization">
+        <SidebarCard title={plantPage.sidebar.nextFertilization}>
           <FertilizerInfo plant={plant} />
         </SidebarCard>
 
-        <SidebarCard title="Additional details">
-          <Section label="Size" value={`${plant.size} cm`} />
-          <Section label="Price" value={plant.price} />
-          <Section label="Destination" value={plant.dest || "—"} />
-          <Section label="Amount" value={plant.amount} />
+        <SidebarCard title={plantPage.sidebar.additionalDetails}>
+          <Section
+            label={plantPage.sidebar.size}
+            value={plantPage.sidebar.sizeValue(plant.size)}
+          />
+          <Section label={plantPage.sidebar.price} value={plant.price} />
+          <Section label={plantPage.sidebar.location} value={plant.dest || "—"} />
+          <Section label={plantPage.sidebar.amount} value={plant.amount} />
         </SidebarCard>
 
-        <SidebarCard title="Notes">
+        <SidebarCard title={plantPage.sidebar.notes}>
           {plant.notes ? (
             <p className="whitespace-pre-wrap">{plant.notes}</p>
           ) : (
             <p className="text-gray-500 italic bg-gray-50 p-4 rounded-lg">
-              No notes available
+              {plantPage.sidebar.noNotes}
             </p>
           )}
         </SidebarCard>
       </aside>
+
+      <div className="flex justify-end lg:col-span-3">
+        <RemovePlantDialog plantName={plant.name} onConfirm={confirmRemove} />
+      </div>
     </div>
   );
 }
@@ -112,44 +164,47 @@ function Section({ label, value }: { label: string; value: string }) {
   );
 }
 
-function AiCareStatus({ plant }: { plant: TPlant }) {
-  const generateCareTips = usePlantStore((state) => state.generateCareTips);
+function AiCareStatus({ plant, state }: { plant: TPlant; state: TCareTipsState }) {
+  const generateCareTips = usePlantStore((store) => store.generateCareTips);
   const retry = () => void generateCareTips(plant.id);
 
-  if (plant.aiStatus === "generating") {
+  if (state === "generating") {
     return (
       <div
         role="status"
         className="flex items-center gap-2 bg-gray-50 p-4 rounded-lg text-gray-700"
       >
-        <Loader2 className="size-4 animate-spin" />
-        Generating care tips...
+        <Loader2 aria-hidden="true" className="size-4 animate-spin" />
+        {plantPage.generating}
       </div>
     );
   }
 
-  if (plant.aiStatus === "error") {
+  // One fixed sentence; the technical aiError is never shown
+  if (state === "failed") {
     return (
       <div
         role="alert"
         className="flex flex-wrap items-center gap-3 bg-red-50 p-4 rounded-lg text-red-700"
       >
-        <AlertCircle className="size-4" />
-        <span className="flex-1">
-          Could not generate care tips: {plant.aiError || "Unknown error"}
-        </span>
+        <AlertCircle aria-hidden="true" className="size-4" />
+        <span className="flex-1">{plantPage.failed}</span>
         <Button variant="outline" className="cursor-pointer" onClick={retry}>
-          Retry
+          {plantPage.retry}
         </Button>
       </div>
     );
   }
 
-  const hasTips = plant.aiStatus === "ready" || Boolean(plant.careTips?.length);
-
+  // Stored tips stay visible while a regeneration runs or after it fails (ADR-0002)
   return (
-    <Button variant="outline" className="cursor-pointer" onClick={retry}>
-      {hasTips ? "Regenerate" : "Generate care tips"}
+    <Button
+      variant="outline"
+      className="cursor-pointer"
+      onClick={retry}
+      disabled={plant.aiStatus === "generating"}
+    >
+      {plantPage.regenerate}
     </Button>
   );
 }
@@ -171,7 +226,9 @@ function SidebarCard({
 
 function WateringInfo({ plant }: { plant: TPlant }) {
   if (!plant.lastWatered)
-    return <p className="bg-gray-50 p-4 rounded-lg">No info about watering</p>;
+    return (
+      <p className="bg-gray-50 p-4 rounded-lg">{plantPage.sidebar.noWateringInfo}</p>
+    );
 
   const daysSince = Math.floor(
     (Date.now() - new Date(plant.lastWatered).getTime()) /
@@ -180,8 +237,12 @@ function WateringInfo({ plant }: { plant: TPlant }) {
 
   return (
     <>
-      <p>Last watred: {new Date(plant.lastWatered).toLocaleDateString()}</p>
-      <p className="text-sm text-gray-500">{daysSince} days since</p>
+      <p>
+        {plantPage.sidebar.lastWateredOn(
+          new Date(plant.lastWatered).toLocaleDateString("en-US")
+        )}
+      </p>
+      <p className="text-sm text-gray-500">{plantPage.sidebar.daysSince(daysSince)}</p>
     </>
   );
 }
@@ -189,7 +250,8 @@ function WateringInfo({ plant }: { plant: TPlant }) {
 function FertilizerInfo({ plant }: { plant: TPlant }) {
   return (
     <p className="bg-gray-50 p-4 rounded-lg">
-      Next fertilization: <b>{plant.nextFertilize || "not planned"}</b>
+      {plantPage.sidebar.nextFertilization}:{" "}
+      <b>{plant.nextFertilize || plantPage.sidebar.notPlanned}</b>
     </p>
   );
 }

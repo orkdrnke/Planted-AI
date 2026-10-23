@@ -25,6 +25,9 @@ import { usePlantStore } from "@/lib/store/plantsStore";
 import { PLANT_TYPES } from "@/lib/constants";
 import { useRouter } from "next/navigation";
 import { PlantFormSchema } from "@/schemas/plantFormSchema";
+import { uiStrings } from "@/lib/uiStrings";
+
+const text = uiStrings.addPlantForm;
 
 export default function AddPlantForm() {
   const form = useForm({
@@ -52,19 +55,17 @@ export default function AddPlantForm() {
     <section className="flex flex-col gap-2 w-[50%] mx-auto mt-10">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <p className="my-2">Form title: Add a new plant</p>
+          <p className="my-2">{text.title}</p>
           <FormField
             control={control}
             name="name"
             render={({ field }) => (
               <FormItem className="my-2">
-                <FormLabel>Plant Name</FormLabel>
+                <FormLabel>{text.name.label}</FormLabel>
                 <FormControl>
-                  <Input placeholder="name" {...field} />
+                  <Input placeholder={text.name.placeholder} {...field} />
                 </FormControl>
-                <FormDescription>
-                  This is the name of your plant
-                </FormDescription>
+                <FormDescription>{text.name.description}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -75,22 +76,23 @@ export default function AddPlantForm() {
             render={({ field }) => {
               return (
                 <FormItem className="py-2">
-                  <FormLabel>Plant Type</FormLabel>
+                  <FormLabel>{text.type.label}</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select plant type" />
+                        <SelectValue placeholder={text.type.placeholder} />
                       </SelectTrigger>
                       <SelectContent>
-                        {Object.entries(PLANT_TYPES).map(([key, label]) => (
-                          <SelectItem key={key} value={label}>
-                            {label}
+                        {/* The stored value stays the English type; only the label is translated */}
+                        {Object.entries(PLANT_TYPES).map(([key, value]) => (
+                          <SelectItem key={key} value={value}>
+                            {uiStrings.plantTypeLabel(value)}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormDescription>Pick a type for the plant</FormDescription>
+                  <FormDescription>{text.type.description}</FormDescription>
                   <FormMessage />
                 </FormItem>
               );
@@ -101,11 +103,11 @@ export default function AddPlantForm() {
             name="size"
             render={({ field }) => (
               <FormItem className="py-2">
-                <FormLabel>Plant Size</FormLabel>
+                <FormLabel>{text.size.label}</FormLabel>
                 <FormControl>
-                  <Input placeholder="size" {...field} />
+                  <Input placeholder={text.size.placeholder} {...field} />
                 </FormControl>
-                <FormDescription>How big is it</FormDescription>
+                <FormDescription>{text.size.description}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -115,11 +117,11 @@ export default function AddPlantForm() {
             name="amount"
             render={({ field }) => (
               <FormItem className="py-2">
-                <FormLabel>Amount</FormLabel>
+                <FormLabel>{text.amount.label}</FormLabel>
                 <FormControl>
-                  <Input placeholder="amount" {...field} />
+                  <Input placeholder={text.amount.placeholder} {...field} />
                 </FormControl>
-                <FormDescription>How many plants</FormDescription>
+                <FormDescription>{text.amount.description}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -129,13 +131,11 @@ export default function AddPlantForm() {
             name="dest"
             render={({ field }) => (
               <FormItem className="py-2">
-                <FormLabel>Plant Destination</FormLabel>
+                <FormLabel>{text.dest.label}</FormLabel>
                 <FormControl>
-                  <Input placeholder="destination" {...field} />
+                  <Input placeholder={text.dest.placeholder} {...field} />
                 </FormControl>
-                <FormDescription>
-                  Is it for outside use or for your room?
-                </FormDescription>
+                <FormDescription>{text.dest.description}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -145,11 +145,11 @@ export default function AddPlantForm() {
             name="price"
             render={({ field }) => (
               <FormItem className="py-2">
-                <FormLabel>Price</FormLabel>
+                <FormLabel>{text.price.label}</FormLabel>
                 <FormControl>
-                  <Input placeholder="price" {...field} />
+                  <Input placeholder={text.price.placeholder} {...field} />
                 </FormControl>
-                <FormDescription>How much did it cost</FormDescription>
+                <FormDescription>{text.price.description}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -159,19 +159,21 @@ export default function AddPlantForm() {
             name="dateAdded"
             render={({ field }) => (
               <FormItem className="py-2">
-                <FormLabel>Date Added</FormLabel>
+                <FormLabel>{text.dateAdded.label}</FormLabel>
                 <FormControl>
-                  <Input type="date" placeholder="date added" {...field} />
+                  <Input
+                    type="date"
+                    placeholder={text.dateAdded.placeholder}
+                    {...field}
+                  />
                 </FormControl>
-                <FormDescription>
-                  When did you add this plant to your collection?
-                </FormDescription>
+                <FormDescription>{text.dateAdded.description}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
           <Button type="submit" className="py-2">
-            Submit
+            {text.submit}
           </Button>
         </form>
       </Form>

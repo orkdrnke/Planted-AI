@@ -47,7 +47,9 @@ describe("updatePlant", () => {
 const careTips = {
   botanicalName: "Monstera deliciosa",
   wateringFrequency: "Once a week",
+  wateringShort: "Weekly",
   sunlightNeeds: "Bright indirect light",
+  sunlightShort: "Bright, indirect",
   soilType: "Well-draining",
   temperatureRange: "18-27°C",
   careTips: ["Wipe the leaves"],
@@ -164,6 +166,28 @@ describe("generateCareTips", () => {
     expect(getPlant("p1")?.wateringFrequency).toBeUndefined();
   });
 
+  it("sets error status when a short note is missing", async () => {
+    const withoutShort: Record<string, unknown> = { ...careTips };
+    delete withoutShort.wateringShort;
+    fetchMock.mockResolvedValue(jsonResponse(withoutShort));
+
+    await usePlantStore.getState().generateCareTips("p1");
+
+    expect(getPlant("p1")?.aiStatus).toBe("error");
+    expect(getPlant("p1")?.wateringFrequency).toBeUndefined();
+  });
+
+  it("sets error status when a short note is longer than 40 characters", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({ ...careTips, sunlightShort: "x".repeat(41) })
+    );
+
+    await usePlantStore.getState().generateCareTips("p1");
+
+    expect(getPlant("p1")?.aiStatus).toBe("error");
+    expect(getPlant("p1")?.sunlightShort).toBeUndefined();
+  });
+
   it("clears a previous error on retry", async () => {
     usePlantStore
       .getState()
@@ -204,6 +228,17 @@ describe("generateCareTips", () => {
     await usePlantStore.getState().generateCareTips("missing");
 
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("removePlant", () => {
+  it("removes only the chosen plant and keeps the others with their tips", () => {
+    const withTips: TPlant = { ...otherPlant, ...careTips, aiStatus: "ready" };
+    usePlantStore.setState({ plants: [plant, withTips] });
+
+    usePlantStore.getState().removePlant("p1");
+
+    expect(usePlantStore.getState().plants).toEqual([withTips]);
   });
 });
 

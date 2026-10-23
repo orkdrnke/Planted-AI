@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { uiStrings } from "@/lib/uiStrings";
 
 export default function HeaderMenu() {
   const pathname = usePathname();
@@ -13,13 +14,13 @@ export default function HeaderMenu() {
       {!isMyGardenPage && (
         <Link href="/myGarden">
           <Button variant="outline" className="cursor-pointer">
-            My Garden
+            {uiStrings.header.myGarden}
           </Button>
         </Link>
       )}
       <Link href="/addPlant">
         <Button variant="default" className="cursor-pointer w-50">
-          Add a Plant
+          {uiStrings.header.addPlant}
         </Button>
       </Link>
     </nav>

@@ -1,0 +1,137 @@
+# Contract of the one existing route this feature changes: POST /api/ai-care-guide.
+# Derived from app/api/ai-care-guide/route.ts (request validation, status mapping),
+# schemas/careTipsSchema.ts (care-tips shape) and ADR-0001 (two new short fields).
+# Route behaviour is NOT changed here except the added response fields; known deviations from the
+# api-skill defaults (unversioned path, {error} body, no auth) are listed in api-sync-report.md.
+openapi: 3.1.0
+
+info:
+  title: ux-improve AI care-guide API
+  version: 0.1.0
+  description: |
+    Returns structured care tips for one plant. The dashboard shows the short watering and light
+    notes, and the plant page shows the full text, so the response now carries both forms
+    (ADR-0001). The route is called by the browser store when a plant is added or its tips are
+    retried, and it keeps the OpenAI key on the server.
+
+servers:
+  - url: /
+    description: Same origin as the Next.js app
+
+# The route has no authentication today (architecture-map tech-debt); this is explicit, not a gap.
+security: []
+
+paths:
+  /api/ai-care-guide:
+    post:
+      summary: Generate care tips for one plant
+      operationId: generateCareTips
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CareGuideRequest" }
+            example:
+              name: "Test Monstera"
+              type: "ornamental"
+              dest: "inside"
+      responses:
+        "200":
+          description: Care tips validated against the care-tips schema
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CareTips" }
+              example:
+                botanicalName: "Monstera deliciosa"
+                wateringFrequency: "Water when the top 2-3 cm of soil is dry, about once a week."
+                wateringShort: "Weekly"
+                sunlightNeeds: "Bright indirect light; avoid direct afternoon sun."
+                sunlightShort: "Bright indirect"
+                soilType: "Well-draining potting mix"
+                temperatureRange: "18-27 C"
+                careTips:
+                  - "Wipe the leaves now and then to keep them dust-free."
+        "400":
+          description: Body is not valid JSON, or fails request validation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              examples:
+                invalidJson:
+                  value: { error: "Invalid JSON body" }
+                invalidBody:
+                  value:
+                    error: "Invalid request body"
+                    issues: { name: ["String must contain at least 1 character(s)"] }
+        "502":
+          description: The AI response was incomplete or could not be parsed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example: { error: "AI returned an invalid response" }
+        "500":
+          description: Unexpected failure while generating the care guide
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example: { error: "Failed to generate care guide" }
+
+components:
+  schemas:
+    CareGuideRequest:
+      type: object
+      required: [name]
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: Plant name; trimmed before validation, must not be empty after trimming
+        type: { type: string }
+        dest: { type: string }
+
+    CareTips:
+      type: object
+      required:
+        - botanicalName
+        - wateringFrequency
+        - wateringShort
+        - sunlightNeeds
+        - sunlightShort
+        - soilType
+        - temperatureRange
+        - careTips
+      properties:
+        botanicalName: { type: string }
+        wateringFrequency:
+          type: string
+          description: Full watering text, shown on the plant page
+        wateringShort:
+          type: string
+          maxLength: 40  # ADR-0001: enforced by CareTipsSchema superRefine (SHORT_NOTE_MAX_LENGTH), not by structured output; over-long → 502
+          description: 2-4 word watering note, shown on the dashboard
+        sunlightNeeds:
+          type: string
+          description: Full light text, shown on the plant page
+        sunlightShort:
+          type: string
+          maxLength: 40  # ADR-0001: enforced by CareTipsSchema superRefine (SHORT_NOTE_MAX_LENGTH), not by structured output; over-long → 502
+          description: 2-4 word light note, shown on the dashboard
+        soilType: { type: string }
+        temperatureRange: { type: string }
+        careTips:
+          type: array
+          items: { type: string }
+
+    # Existing error body of the route (not the unified {code, message} envelope), see api-sync-report.md.
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+        issues:
+          type: object
+          description: Field errors from request validation (present on invalid body only)
+          additionalProperties:
+            type: array
+            items: { type: string }

@@ -9,7 +9,7 @@ The primary goal is to explore modern frontend development patterns and AI integ
 The application allows users to:
 
 - Add plants to their personal collection.
-- View the collection in a table.
+- View the collection on a dashboard (`/myGarden`): collection status and one responsive row or card per plant.
 - Open a dedicated page for an individual plant.
 - Generate plant care recommendations using the OpenAI API.
 - Store plant data in a client-side Zustand store.
@@ -183,7 +183,8 @@ Relevant files include:
 - `types/plant.ts`
 - `types/store.ts`
 - `schemas/plantFormSchema.ts`
-- `schemas/careTipsSchema.ts` — AI care tips schema shared by the server and the client; it must stay free of server-only imports.
+- `schemas/careTipsSchema.ts` — AI care tips schema shared by the server and the client; it must stay free of server-only imports. The 40-character limit on `wateringShort` / `sunlightShort` is a `superRefine`, because strict structured output rejects `maxLength`; an over-long note fails generation.
+- `lib/careTipsState.ts` — `getCareTipsState(plant)` / `getCollectionStatus(plants)`, the only place the ready / generating / failed rule lives (stored tips win; no tips and no generation is failed).
 
 Inspect these files before changing the plant model or form contract.
 
@@ -195,7 +196,7 @@ The current `TPlant` type (`types/plant.ts`) contains:
 
 - Managed by the store: `id`.
 - From the form (`schemas/plantFormSchema.ts`), all strings: `name`, `type`, `size`, `amount`, `price` (required), `dest` and `dateAdded` (optional).
-- AI-generated (optional): `botanicalName`, `wateringFrequency`, `sunlightNeeds`, `soilType`, `temperatureRange`, `careTips` (`string[]`).
+- AI-generated (optional): `botanicalName`, `wateringFrequency`, `wateringShort`, `sunlightNeeds`, `sunlightShort`, `soilType`, `temperatureRange`, `careTips` (`string[]`). The short fields are 2–4 word notes shown on the dashboard; the full text is shown on the plant page.
 - Other (optional, not set by any UI yet): `nextFertilize`, `notes`, `imageUrl`, `lastWatered`.
 
 Notes:
@@ -319,8 +320,10 @@ General rules:
 - Do not silently change existing behavior.
 - Remove unused imports and variables introduced by your changes.
 - Avoid unrelated formatting changes.
-- Keep UI text and code comments in English.
-- Keep explanations and development discussions with the user in Ukrainian.
+- Product UI text is English (the default locale; more languages are planned) and lives only in `lib/uiStrings.ts`; components import it instead of hard-coding strings (ADR-0004 of `ux-improve`). Stored data values such as `PLANT_TYPES` stay as they are; map them to display labels with `uiStrings.plantTypeLabel`. No i18n library is installed yet.
+- Write all files in English: code, comments, docs, Markdown, specs, ADRs and instructions for AI agents.
+- Keep code comments in English.
+- Keep explanations and development discussions with the user in Ukrainian (chat only; never in files).
 
 ## 11. Tooling and Verification
 
@@ -332,12 +335,56 @@ After making changes, run the most relevant available checks, such as:
 
 - TypeScript type checking — `pnpm typecheck`.
 - ESLint — `pnpm lint`.
-- Tests — `pnpm test` (Vitest, `*.test.ts` next to the tested file). Tests must not call the real OpenAI API; mock `openai` or `@/lib/aiHelpers`.
+- Tests — `pnpm test` (Vitest, `*.test.ts` / `*.test.tsx` next to the tested file). `*.test.ts` run in node; component tests (`*.test.tsx`) start with a `// @vitest-environment jsdom` docblock and use Testing Library (mock `next/navigation` where a page uses it). Tests must not call the real OpenAI API; mock `openai`, `@/lib/aiHelpers` or `fetch`.
 - Production build — `pnpm build`.
 
 `next dev` does not run a full type check, so a working dev server does not guarantee that `pnpm build` passes.
 
 Use the actual scripts defined in `package.json`; do not assume that a script exists.
+
+### Shell commands and file access
+
+`permissions.blockReadsOutsideWorkingDirectories` is enabled. Before a command runs, Claude Code must statically resolve every path it reads. A command whose paths cannot be resolved is rejected or needs manual approval. These rules apply to the main agent, all subagents and SDD plugin skills (`sdd:*`).
+
+Allowed directories: the repository root and `~/.claude`. The session already runs in the repository root.
+
+General rules:
+
+- Never prefix commands with `cd`. Use repo-relative paths (preferred) or absolute paths. Paths after `cd` are computed at run time, so the command is rejected.
+- No inline interpreters or dynamic shell: `python3 -c`, `python3 script.py`, `node -e`, `bash -c`, `sh -c`, `eval`, `xargs` with a command, `$(...)` or backticks that produce paths, process substitution `<(...)`.
+- Do not write scripts with `sed` or `awk` (`sed -i`, `sed 's/…/…/'`, `awk '…'`), `perl` or `tee`. They can read and write arbitrary files.
+- Do not use `/tmp` or other directories outside the repository. For temporary output, use the session scratchpad directory or an ignored path inside the repository.
+- Keep one command per call when possible. Long chains with `;` and `&&` are harder to analyze; split them into separate tool calls.
+
+Use the right tool for each operation:
+
+| Operation | Use | Do not use |
+|---|---|---|
+| Read a file or part of one | Read tool (`offset`/`limit`) | `cat`, `head`, `tail`, `sed -n` for large files |
+| Read a JSON field (`tasks.json`, `package.json`) | `jq '<filter>' <path>` or the Read tool | `python3 -c`, `node -e` |
+| Search content | `grep -rn '<pattern>' <path>` | `find … -exec grep`, `xargs grep` |
+| List files / count ADRs | `ls <path>`, `ls docs/features/<slug>/adr/` and count the results yourself | `ls … \| wc -l` inside `$(...)` |
+| Check that a file or directory exists | `test -f <path>` / `test -d <path>` / `test -e <path>` | — |
+| Create a file (including new directories) | Write tool (creates parent directories) | `mkdir -p` + `cat > file <<EOF`, `echo >`, `touch`, `cp` from a template |
+| Copy a template (`glossary`, `decide-adr`, `survey`) | Read the template, then Write the target file | `cp` |
+| Edit a file (frontmatter, `status`, `updated_at`, `tasks.json`) | Edit tool | `sed -i`, `jq … > tmp && mv`, Python |
+| Delete a file | `git rm <path>` (tracked) or `rm <repo-relative path>` (untracked); confirm with the user first | `rm -rf`, wildcards, absolute paths outside the repository |
+| Move or rename | `git mv <from> <to>` | `mv` across directories outside the repository |
+| Today's date for `updated_at` | Take it from the session context; if needed, `date +%F` | — |
+
+Git (only the paths of the current task):
+
+- Allowed: `git status --short`, `git diff`, `git diff --cached`, `git diff <base>..HEAD`, `git log --oneline`, `git log --grep SDD-Task`, `git show <rev>`, `git add <paths>`, `git commit -m "…" -- <paths>`, `git rm`, `git mv`.
+- Worktrees (`implement` in team or worktree mode): `git worktree add .worktrees/<name> HEAD`, `git -C .worktrees/<name> diff --binary HEAD`, `git apply --3way <file inside the repository or scratchpad>`, `git worktree remove .worktrees/<name>`. Keep worktrees inside `.worktrees/` in the repository, never outside it.
+- Forbidden (also by the SDD rules): `git add -A`, `git add .`, `--no-verify`, `--amend`, `push --force`, `reset --hard` without explicit approval.
+- `gh pr create` only at the `ship` stage and only after user confirmation. Pass the PR body with `--body-file <file inside the repository or scratchpad>`.
+
+Checks and tools:
+
+- Gate commands: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build`. Do not run `npx tsc`, `npx eslint` or similar instead of the scripts.
+- Mermaid validation (`_shared/mermaid-check.md`, `c4-mermaid-syntax.md`): do not use `npx -y @mermaid-js/mermaid-cli … -i <(awk …) -o /tmp/…`. First Write the diagrams into a `.mmd` file in the scratchpad, then run `npx -y @mermaid-js/mermaid-cli@11 -i <scratchpad>/x.mmd -o <scratchpad>/x.svg`. If `mmdc` is unavailable, use the plugin's manual syntax check.
+
+If a command is rejected or requires approval because of the read block, do not retry the same command. Rewrite it according to the table above.
 
 If a check fails:
 
@@ -366,7 +413,8 @@ The following limitations are known or expected in the current MVP and must be v
 - AI-generated recommendations may fail or be inaccurate.
 - Durable background processing is not implemented.
 - Search, photo capture, and other routes may be incomplete or placeholders.
-- AI loading, retry, and failure states are shown on the plant detail page and as a row icon in `/myGarden`; there are no UI tests for them.
+- AI loading, retry, and failure states are shown on the plant detail page and as a text state label on each `/myGarden` row; they have component tests, but layout, keyboard and accessibility checks are manual (browser + axe).
+- The app layout has no `<main>` landmark and the plant page jumps from `h1` to `h3` (moderate axe findings, not fixed yet).
 
 Do not silently expand the scope to address these limitations during unrelated work.
 
