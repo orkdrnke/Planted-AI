@@ -1,5 +1,5 @@
 ---
-status: Accepted
+status: Superseded
 owner: "Orest Lyubinets"
 reviewers: ["Tech Lead"]
 updated_at: "2026-10-17"
@@ -9,7 +9,7 @@ ticket: "ux-improve"
 
 # 0003 — Keep Ukrainian UI text in a single strings module
 
-- **Status:** Accepted
+- **Status:** Superseded by [[0004-english-default-locale-in-the-strings-module]] (the single strings module stays; the language changes to English)
 - **Date:** 2026-10-17
 - **Deciders:** Orest Lyubinets, Claude (design pass)
 
@@ -36,7 +36,7 @@ During this design pass the owner decided that all product UI text is shown in U
 ## Consequences
 
 **Positive**
-- One place to review wording and keep "Очікується" / "Недоступно"-style labels consistent.
+- One place to review wording and keep "Pending" / "Unavailable"-style labels consistent.
 - A future switch to a library can wrap this module's keys.
 
 **Negative**

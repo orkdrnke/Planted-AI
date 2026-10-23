@@ -12,6 +12,7 @@ updated_at: "2026-10-17"
 - Collection status — the short summary above the dashboard table: how many plants the collection holds and how many care tips are ready, generating or failed. NOT a to-do list or reminders.
 - Dashboard — the plant table page the gardener opens daily to see what is in the collection and its current state. NOT the welcome page.
 - Gardener — a person who keeps a personal plant collection in the product. NOT an administrator; there are no other roles.
+- Interface language — the language of all product UI text and of AI care tips; English is the default locale, and other languages are planned. NOT the language of the gardener's own entries such as plant names.
 - Light needs — a short note on the dashboard saying how much light a plant needs, taken from its care tips. NOT the full care tips; those live on the plant page.
 - Location — where the plant is kept, inside or outside. NOT the plant's growth conditions such as light.
 - Plant — one entry in a collection with a name, type, location and optional care tips. NOT a plant species record shared between gardeners.

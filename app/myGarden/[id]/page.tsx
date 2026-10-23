@@ -239,7 +239,7 @@ function WateringInfo({ plant }: { plant: TPlant }) {
     <>
       <p>
         {plantPage.sidebar.lastWateredOn(
-          new Date(plant.lastWatered).toLocaleDateString()
+          new Date(plant.lastWatered).toLocaleDateString("en-US")
         )}
       </p>
       <p className="text-sm text-gray-500">{plantPage.sidebar.daysSince(daysSince)}</p>

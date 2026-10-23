@@ -11,29 +11,29 @@ afterEach(cleanup);
 
 const basePlant: TPlant = {
   id: "p1",
-  name: "Монстера",
-  type: "Кімнатна",
+  name: "Monstera",
+  type: "Indoor",
   price: "$250.00",
   size: "40",
   amount: "2",
-  dest: "Кімната",
+  dest: "Living room",
 };
 
 const readyPlant: TPlant = {
   ...basePlant,
   aiStatus: "ready",
   wateringFrequency: "Water once a week, letting the topsoil dry out",
-  wateringShort: "Раз на тиждень",
+  wateringShort: "Once a week",
   sunlightNeeds: "Bright indirect light, away from direct sun",
-  sunlightShort: "Розсіяне",
+  sunlightShort: "Indirect light",
   careTips: ["Wipe the leaves"],
 };
 
 describe("CareTipStateLabel", () => {
   it.each([
-    ["ready", "Готово"],
-    ["generating", "Генерується"],
-    ["failed", "Помилка"],
+    ["ready", "Ready"],
+    ["generating", "Generating"],
+    ["failed", "Failed"],
   ] as const)("shows the %s state as text", (state, text) => {
     render(<CareTipStateLabel state={state} />);
 
@@ -59,17 +59,17 @@ describe("CollectionStatus", () => {
 
     const { container } = render(<CollectionStatus plants={plants} />);
 
-    expect(container.textContent).toContain("Рослин: 4");
-    expect(container.textContent).toContain("Готово: 2");
-    expect(container.textContent).toContain("Генерується: 1");
-    expect(container.textContent).toContain("Помилка: 1");
+    expect(container.textContent).toContain("Plants: 4");
+    expect(container.textContent).toContain("Ready: 2");
+    expect(container.textContent).toContain("Generating: 1");
+    expect(container.textContent).toContain("Failed: 1");
   });
 
   it("is a labelled region whose counts stay readable text", () => {
     const { container } = render(<CollectionStatus plants={[readyPlant]} />);
 
-    const region = screen.getByRole("region", { name: "Стан колекції" });
-    expect(region.textContent).toContain("Рослин: 1");
+    const region = screen.getByRole("region", { name: "Collection status" });
+    expect(region.textContent).toContain("Plants: 1");
     // ARIA 1.2 prohibits naming a paragraph, and a name would hide the counts
     expect(container.querySelector("p[aria-label]")).toBeNull();
   });
@@ -77,10 +77,10 @@ describe("CollectionStatus", () => {
   it("reports zero for an empty collection", () => {
     const { container } = render(<CollectionStatus plants={[]} />);
 
-    expect(container.textContent).toContain("Рослин: 0");
-    expect(container.textContent).toContain("Готово: 0");
-    expect(container.textContent).toContain("Генерується: 0");
-    expect(container.textContent).toContain("Помилка: 0");
+    expect(container.textContent).toContain("Plants: 0");
+    expect(container.textContent).toContain("Ready: 0");
+    expect(container.textContent).toContain("Generating: 0");
+    expect(container.textContent).toContain("Failed: 0");
   });
 });
 
@@ -88,8 +88,8 @@ describe("EmptyState", () => {
   it("shows the message and a prominent action to add the first plant", () => {
     render(<EmptyState />);
 
-    expect(screen.getByText("У вашому саду ще немає рослин")).toBeTruthy();
-    const action = screen.getByRole("link", { name: "Додати першу рослину" });
+    expect(screen.getByText("Your garden has no plants yet")).toBeTruthy();
+    const action = screen.getByRole("link", { name: "Add your first plant" });
     expect(action.getAttribute("href")).toBe("/addPlant");
   });
 });
@@ -109,12 +109,12 @@ describe("PlantListItem", () => {
     render(<PlantListItem plant={readyPlant} />);
     const link = screen.getByRole("link");
 
-    expect(within(link).getByText("Монстера")).toBeTruthy();
-    expect(within(link).getByText("Готово")).toBeTruthy();
-    expect(within(link).getByText("Кімнатна")).toBeTruthy();
-    expect(within(link).getByText("Кімната")).toBeTruthy();
-    expect(within(link).getByText("Раз на тиждень")).toBeTruthy();
-    expect(within(link).getByText("Розсіяне")).toBeTruthy();
+    expect(within(link).getByText("Monstera")).toBeTruthy();
+    expect(within(link).getByText("Ready")).toBeTruthy();
+    expect(within(link).getByText("Indoor")).toBeTruthy();
+    expect(within(link).getByText("Living room")).toBeTruthy();
+    expect(within(link).getByText("Once a week")).toBeTruthy();
+    expect(within(link).getByText("Indirect light")).toBeTruthy();
     expect(link.textContent).not.toContain("$250.00");
     expect(link.textContent).not.toContain("40");
     expect(link.textContent).not.toMatch(/\b2\b/);
@@ -123,23 +123,23 @@ describe("PlantListItem", () => {
   it("shows the pending label in the watering and light cells while generating", () => {
     render(<PlantListItem plant={{ ...basePlant, aiStatus: "generating" }} />);
 
-    expect(screen.getByText("Генерується")).toBeTruthy();
-    expect(screen.getAllByText("Очікується")).toHaveLength(2);
+    expect(screen.getByText("Generating")).toBeTruthy();
+    expect(screen.getAllByText("Pending")).toHaveLength(2);
   });
 
   it("shows the unavailable label for a failed plant, with no retry", () => {
     render(<PlantListItem plant={{ ...basePlant, aiStatus: "error" }} />);
 
-    expect(screen.getByText("Помилка")).toBeTruthy();
-    expect(screen.getAllByText("Недоступно")).toHaveLength(2);
+    expect(screen.getByText("Failed")).toBeTruthy();
+    expect(screen.getAllByText("Unavailable")).toHaveLength(2);
     expect(screen.queryByRole("button")).toBeNull();
   });
 
   it("counts a plant with stored tips and a failed regeneration as ready", () => {
     render(<PlantListItem plant={{ ...readyPlant, aiStatus: "error" }} />);
 
-    expect(screen.getByText("Готово")).toBeTruthy();
-    expect(screen.getByText("Раз на тиждень")).toBeTruthy();
+    expect(screen.getByText("Ready")).toBeTruthy();
+    expect(screen.getByText("Once a week")).toBeTruthy();
   });
 
   it("shows a dash when no location was entered", () => {
@@ -160,7 +160,7 @@ describe("PlantListItem", () => {
   });
 
   it("truncates a long name visually but keeps the full name in the link", () => {
-    const name = "Дуже довга назва рослини, яка не вміщується в рядок";
+    const name = "A very long plant name that does not fit on a single line of the row";
     render(<PlantListItem plant={{ ...readyPlant, name }} />);
 
     const nameElement = screen.getByText(name);
@@ -171,7 +171,7 @@ describe("PlantListItem", () => {
   it("never truncates the short watering and light notes", () => {
     render(<PlantListItem plant={readyPlant} />);
 
-    for (const note of ["Раз на тиждень", "Розсіяне"]) {
+    for (const note of ["Once a week", "Indirect light"]) {
       const cell = screen.getByText(note);
       expect(cell.className).not.toMatch(/truncate/);
     }
@@ -189,10 +189,10 @@ describe("PlantListItem", () => {
   });
 
   it("keeps a long unbroken type or location inside the card at every width", () => {
-    const dest = "Підвіконнявсхіднійкімнатібіляробочогостолу";
+    const dest = "Windowsillintheeasternroomnexttotheworkdesk";
     render(<PlantListItem plant={{ ...readyPlant, dest }} />);
 
-    for (const text of [dest, "Кімнатна"]) {
+    for (const text of [dest, "Indoor"]) {
       const cell = screen.getByText(text);
       expect(cell.className.split(" ")).toEqual(
         expect.arrayContaining(["min-w-0", "truncate"])

@@ -42,14 +42,14 @@ flowchart TD
     L -->|no| L2[SCR-01 Dash shown in the location cell]
     D --> E{Stored care tips or generation state}
     E -->|stored tips| F[SCR-01 Row shows watering and light notes]
-    E -->|generating| G[SCR-01 Cells show Очікується - Pending]
-    E -->|failed or no tips and no generation| H[SCR-01 Cells show Недоступно - Unavailable]
+    E -->|generating| G[SCR-01 Cells show Pending]
+    E -->|failed or no tips and no generation| H[SCR-01 Cells show Unavailable]
     D --> N{Plant just added?}
     N -->|yes| N1[SCR-01 Row or card briefly highlighted]
     N -->|no| N2[SCR-01 No highlight]
 ```
 
-When the gardener opens the dashboard with at least one plant, each plant is one row (a card on a phone) with name, type, location, watering and light, and its care-tip state as a text label next to the name. Price, size and amount are not shown. A plant that has stored care tips is ready and shows its watering and light notes, even if its latest regeneration failed. A plant whose tips are generating shows «Очікується» ("Pending") in both cells; a failed plant, or one with no tips and no generation under way, shows «Недоступно» ("Unavailable"), and it stays listed. A plant with no location shows a dash. A plant that was just added is briefly highlighted. The dashboard offers no retry. With no plants the gardener sees the empty dashboard instead.
+When the gardener opens the dashboard with at least one plant, each plant is one row (a card on a phone) with name, type, location, watering and light, and its care-tip state as a text label next to the name. Price, size and amount are not shown. A plant that has stored care tips is ready and shows its watering and light notes, even if its latest regeneration failed. A plant whose tips are generating shows "Pending" in both cells; a failed plant, or one with no tips and no generation under way, shows "Unavailable", and it stays listed. A plant with no location shows a dash. A plant that was just added is briefly highlighted. The dashboard offers no retry. With no plants the gardener sees the empty dashboard instead.
 
 ### Flow: US-02 — Read the collection status
 

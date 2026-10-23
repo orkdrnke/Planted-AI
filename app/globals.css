@@ -125,7 +125,7 @@
 @keyframes highlight {
   0% {
     background-color: #d1fae5;
-  } /* зелений */
+  } /* green */
   100% {
     background-color: transparent;
   }

@@ -36,18 +36,18 @@ describe("/addPlant form", () => {
     const user = userEvent.setup();
     render(<AddPlantForm />);
 
-    await user.type(screen.getByLabelText("Назва рослини"), "Монстера");
+    await user.type(screen.getByLabelText("Plant name"), "Monstera");
     // The type Select trigger is the form's only combobox
     await user.click(screen.getByRole("combobox"));
-    await user.click(await screen.findByRole("option", { name: "Кімнатні рослини" }));
-    await user.type(screen.getByLabelText("Призначення"), "inside");
-    await user.click(screen.getByRole("button", { name: "Додати" }));
+    await user.click(await screen.findByRole("option", { name: "Indoor plants" }));
+    await user.type(screen.getByLabelText("Destination"), "inside");
+    await user.click(screen.getByRole("button", { name: "Add" }));
 
     await waitFor(() => expect(replace).toHaveBeenCalledWith("/myGarden"));
     const { plants, newPlantId } = usePlantStore.getState();
     expect(plants).toHaveLength(1);
     expect(plants[0]).toMatchObject({
-      name: "Монстера",
+      name: "Monstera",
       type: "Indoor plants",
       dest: "inside",
     });
@@ -59,10 +59,10 @@ describe("/addPlant form", () => {
     const user = userEvent.setup();
     render(<AddPlantForm />);
 
-    await user.type(screen.getByLabelText("Назва рослини"), "Мо");
-    await user.click(screen.getByRole("button", { name: "Додати" }));
+    await user.type(screen.getByLabelText("Plant name"), "Mo");
+    await user.click(screen.getByRole("button", { name: "Add" }));
 
-    expect(await screen.findByText("Назва має містити щонайменше 3 символи")).toBeTruthy();
+    expect(await screen.findByText("Name must be at least 3 characters")).toBeTruthy();
     expect(replace).not.toHaveBeenCalled();
     expect(usePlantStore.getState().plants).toHaveLength(0);
   });

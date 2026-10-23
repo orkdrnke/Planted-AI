@@ -85,7 +85,7 @@ Onboarding is a separate feature. Urgent actions and reminders are out of scope 
 
 **Given** a plant whose care tips are still generating or failed (including a plant that has no tips and no generation under way, which counts as failed), so no watering or light information exists
 **When** the gardener opens the dashboard
-**Then** the plant is still listed with its name, type and location, and the watering and light cells each show the text label «Очікується» ("Pending", generating) or «Недоступно» ("Unavailable", failed) instead of staying blank, and the dashboard offers no retry (retry is on the plant page, AC-06). A plant with no location entered shows a dash in the location cell instead of staying blank. A plant that has stored care tips counts as ready even when its latest regeneration failed: the stored tips decide the state and are shown
+**Then** the plant is still listed with its name, type and location, and the watering and light cells each show the text label "Pending" (generating) or "Unavailable" (failed) instead of staying blank, and the dashboard offers no retry (retry is on the plant page, AC-06). A plant with no location entered shows a dash in the location cell instead of staying blank. A plant that has stored care tips counts as ready even when its latest regeneration failed: the stored tips decide the state and are shown
 
 ### AC-03 (US-02) — happy path
 

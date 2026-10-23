@@ -320,9 +320,10 @@ General rules:
 - Do not silently change existing behavior.
 - Remove unused imports and variables introduced by your changes.
 - Avoid unrelated formatting changes.
-- Product UI text is Ukrainian and lives only in `lib/uiStrings.ts`; components import it instead of hard-coding strings (ADR-0003 of `ux-improve`). Stored data values such as `PLANT_TYPES` stay English; translate them for display with `uiStrings.plantTypeLabel`.
+- Product UI text is English (the default locale; more languages are planned) and lives only in `lib/uiStrings.ts`; components import it instead of hard-coding strings (ADR-0004 of `ux-improve`). Stored data values such as `PLANT_TYPES` stay as they are; map them to display labels with `uiStrings.plantTypeLabel`. No i18n library is installed yet.
+- Write all files in English: code, comments, docs, Markdown, specs, ADRs and instructions for AI agents.
 - Keep code comments in English.
-- Keep explanations and development discussions with the user in Ukrainian.
+- Keep explanations and development discussions with the user in Ukrainian (chat only; never in files).
 
 ## 11. Tooling and Verification
 

@@ -11,31 +11,31 @@ vi.mock("next/navigation", () => ({
 
 const basePlant: TPlant = {
   id: "p1",
-  name: "Монстера",
-  type: "Кімнатна",
+  name: "Monstera",
+  type: "Indoor",
   price: "$250.00",
   size: "40",
   amount: "2",
-  dest: "Кімната",
+  dest: "Living room",
 };
 
 const readyPlant: TPlant = {
   ...basePlant,
   aiStatus: "ready",
   wateringFrequency: "Once a week",
-  wateringShort: "Раз на тиждень",
+  wateringShort: "Once a week",
   sunlightNeeds: "Bright indirect light",
-  sunlightShort: "Розсіяне",
+  sunlightShort: "Indirect light",
 };
 
 const plants: TPlant[] = [
   readyPlant,
-  { ...basePlant, id: "p2", name: "Алое", aiStatus: "generating" },
-  { ...basePlant, id: "p3", name: "Кактус", aiStatus: "error" },
+  { ...basePlant, id: "p2", name: "Aloe", aiStatus: "generating" },
+  { ...basePlant, id: "p3", name: "Cactus", aiStatus: "error" },
 ];
 
 const statusText = () =>
-  screen.getByRole("region", { name: "Стан колекції" }).textContent;
+  screen.getByRole("region", { name: "Collection status" }).textContent;
 const plantLinks = () =>
   screen.getAllByRole("link").filter((link) => link.getAttribute("href")?.startsWith("/myGarden/"));
 
@@ -52,10 +52,10 @@ describe("/myGarden dashboard", () => {
   it("shows the collection status above one link per plant", () => {
     render(<MyGardenPage />);
 
-    expect(statusText()).toContain("Рослин: 3");
-    expect(statusText()).toContain("Готово: 1");
-    expect(statusText()).toContain("Генерується: 1");
-    expect(statusText()).toContain("Помилка: 1");
+    expect(statusText()).toContain("Plants: 3");
+    expect(statusText()).toContain("Ready: 1");
+    expect(statusText()).toContain("Generating: 1");
+    expect(statusText()).toContain("Failed: 1");
     expect(plantLinks().map((link) => link.getAttribute("href"))).toEqual([
       "/myGarden/p1",
       "/myGarden/p2",
@@ -75,7 +75,7 @@ describe("/myGarden dashboard", () => {
     render(<MyGardenPage />);
 
     expect(
-      screen.getByRole("link", { name: "Додати рослину" }).getAttribute("href")
+      screen.getByRole("link", { name: "Add plant" }).getAttribute("href")
     ).toBe("/addPlant");
     expect(screen.queryByRole("button")).toBeNull();
   });
@@ -99,25 +99,25 @@ describe("/myGarden dashboard", () => {
       }));
     });
     expect(plantLinks()).toHaveLength(4);
-    expect(statusText()).toContain("Рослин: 4");
-    expect(statusText()).toContain("Генерується: 2");
+    expect(statusText()).toContain("Plants: 4");
+    expect(statusText()).toContain("Generating: 2");
 
     act(() => {
       usePlantStore.getState().updatePlant("p4", {
         aiStatus: "ready",
-        wateringShort: "Щодня",
-        sunlightShort: "Тінь",
+        wateringShort: "Daily",
+        sunlightShort: "Shade",
       });
     });
-    expect(statusText()).toContain("Готово: 2");
-    expect(statusText()).toContain("Генерується: 1");
+    expect(statusText()).toContain("Ready: 2");
+    expect(statusText()).toContain("Generating: 1");
 
     act(() => {
       usePlantStore.getState().removePlant("p1");
     });
     expect(plantLinks()).toHaveLength(3);
-    expect(statusText()).toContain("Рослин: 3");
-    expect(statusText()).toContain("Готово: 1");
+    expect(statusText()).toContain("Plants: 3");
+    expect(statusText()).toContain("Ready: 1");
   });
 
   it("shows the empty state with zero counts and no list headings", () => {
@@ -125,12 +125,12 @@ describe("/myGarden dashboard", () => {
 
     render(<MyGardenPage />);
 
-    expect(screen.getByText("У вашому саду ще немає рослин")).toBeTruthy();
+    expect(screen.getByText("Your garden has no plants yet")).toBeTruthy();
     expect(
-      screen.getByRole("link", { name: "Додати першу рослину" }).getAttribute("href")
+      screen.getByRole("link", { name: "Add your first plant" }).getAttribute("href")
     ).toBe("/addPlant");
-    expect(statusText()).toContain("Рослин: 0");
-    expect(screen.queryByText("Назва")).toBeNull();
+    expect(statusText()).toContain("Plants: 0");
+    expect(screen.queryByText("Name")).toBeNull();
     expect(screen.queryByRole("list")).toBeNull();
   });
 

@@ -54,7 +54,7 @@ There is no database, no auth and no separate backend service. Plant data lives 
 | Schemas | `schemas/plantFormSchema.ts`, `schemas/careTipsSchema.ts` | validation | `lib/store/plantsStore.ts:81` | Form contract; care-tips contract shared by client and server |
 | Types | `types/plant.ts`, `types/store.ts` | types | `lib/store/plantsStore.ts` | `TPlant`, `TPlantState` |
 | Mock data | `lib/mockdata.ts` | seed data | `lib/store/plantsStore.ts` | Initial plants (to be removed once the collection is stored durably) |
-| Helpers | `lib/constants.ts`, `lib/utils.ts`, `lib/careTipsState.ts`, `lib/uiStrings.ts` | utilities | `app/myGarden/page.tsx` | Plant types/dest lists, `cn()`, care-tip state + collection status, Ukrainian UI text |
+| Helpers | `lib/constants.ts`, `lib/utils.ts`, `lib/careTipsState.ts`, `lib/uiStrings.ts` | utilities | `app/myGarden/page.tsx` | Plant types/dest lists, `cn()`, care-tip state + collection status, UI text |
 | UI kit | `components/ui/` | shadcn primitives | pages | button, card, dialog, form, input, label, navigation-menu, select, sheet, table |
 | App chrome | `components/header.tsx`, `components/headerMenu.tsx` | UI | `app/layout.tsx` | Header and navigation menu |
 
