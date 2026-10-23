@@ -4,7 +4,7 @@ owner: "Orest Lyubinets"
 reviewers: ["Tech Lead"]
 updated_at: "2026-10-17"
 feature_size: "S"
-ticket: "roadmap step 7"
+ticket: "ux-improve"
 ---
 
 # 0003 — Keep Ukrainian UI text in a single strings module

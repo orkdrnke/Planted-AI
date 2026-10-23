@@ -63,7 +63,7 @@ A gardener keeps a personal plant collection in the browser and uses the dashboa
 | Gardener | Person | Opens the dashboard and plant pages, adds, retries tips for and removes plants |
 | OpenAI Responses API | System (external) | Generates structured care tips, called only from the server route |
 
-External: none besides OpenAI (deliberate; no accounts or backend service exist yet, they arrive with roadmap steps 1–5).
+External: none besides OpenAI (deliberate; no accounts or backend service exist yet).
 
 **C4 Context (L1):**
 
@@ -284,7 +284,7 @@ Participants are the §5 containers by name (the Web UI is the `<ui>`, the Plant
 | AC-04 | Flow 2 (generating to ready or failed), Flow 3 (counts drop after removal) |
 | AC-05 | Flow 1 (plant found, full tips) |
 | AC-06 | Flow 4 (failure sentence, retry, generating, ready or failed again) |
-| AC-07 | Flow 1 (plant not in the collection, same message); verified after roadmap step 4 |
+| AC-07 | Flow 1 (plant not in the collection, same message); verified once per-user collections exist |
 | AC-08 | Flow 1 (empty branch), Flow 3 (last plant removed) |
 | AC-09 | Non-runtime N/A: card layout, full short notes and name truncation are markup and CSS, no participant exchange |
 | AC-10 | Non-runtime N/A: one Tab stop per row, Enter opens, text labels are markup and focus behaviour, no participant exchange |
@@ -303,7 +303,7 @@ The feature ships inside the same Next.js app as today. Performance targets are 
 | Concept | Convention | Where defined |
 |---|---|---|
 | Logging | Unchanged; server-side `console.error` in the AI helper only, no secrets | `lib/aiHelpers.ts` |
-| Authentication / authorization | None yet. The list must show only the signed-in gardener's plants once accounts exist and treat an unknown and a foreign plant the same (AC-07, verified after roadmap step 4) | spec §6.1 |
+| Authentication / authorization | None yet. The list must show only the signed-in gardener's plants once accounts exist and treat an unknown and a foreign plant the same (AC-07, verified once per-user collections exist) | spec §6.1 |
 | Error handling | The store records `aiStatus` / `aiError`; the UI shows one fixed Ukrainian sentence and never the technical error text | `lib/store/plantsStore.ts`, ADR-0002 |
 | ID strategy | `uuid` v4 in the store; the dashboard keys rows by `id` (not by name) | `lib/store/plantsStore.ts` |
 | Internationalisation | All product UI text in Ukrainian, read from one module on every screen; single language, no locale switching | ADR-0003 |
@@ -347,13 +347,13 @@ ADR files live under `docs/features/ux-improve/adr/NNNN-<title>.md`.
 | Product UI text is now Ukrainian on every screen, which contradicts AGENTS.md §10 and the English labels "Pending" / "Unavailable" written in spec AC-02 | Medium | Update AGENTS.md §10 and AC-02 wording (ADR-0003) before `tasks` | Orest Lyubinets |
 | The short fields' length limit may not be enforceable by the structured-output feature of the installed `openai` / model; an over-long value would fail validation and mark the whole generation failed | Medium | Verify support before relying on it; otherwise enforce through the prompt plus the client-side `CareTipsSchema` check, and decide on clipping vs failing in `tasks` | Orest Lyubinets |
 | Scope growth: translating the landing page, add-plant form and header (not touched by the spec) adds tasks to a size S feature | Low | Keep it to moving existing text into `lib/uiStrings.ts`; revisit the size at `tasks` if it grows | Orest Lyubinets |
-| Seed (mock) plants have no tips, so the first view reads "N failed" (spec §8 default) | Low | Accepted until roadmap step 4 removes mock data | Orest Lyubinets |
+| Seed (mock) plants have no tips, so the first view reads "N failed" (spec §8 default) | Low | Accepted until mock data is removed | Orest Lyubinets |
 | Existing defects on the touched screens: `key={plant.name}` on the dashboard, the plant page drops the last character of each care tip (AC-05 needs full tips), typo "Last watred" | Medium | Fix in this feature's tasks: key by `id`, remove the character drop, fix the typo while moving the text into the strings module; the existing Ukrainian "not found" line moves there too | Orest Lyubinets |
 | No UI tests exist (Vitest runs `*.test.ts` in a node environment), so layout, keyboard and accessibility targets rely on manual and audit checks | Medium | Keep the rule logic in pure `lib/` functions with unit tests; record manual and axe results in `review` | Orest Lyubinets |
 | Performance and audit measurement bounds are undefined (spec §8: build, start/end events, audit tool, failing severity) | Low | Default now: production build, click to full content visible, axe with serious and critical failing; confirm before `plan-tests` | Orest Lyubinets |
 
 **Accepted debt (acceptable now, plan to fix later):**
-- Plant data is in-memory only and resets on refresh until roadmap step 4.
+- Plant data is in-memory only and resets on refresh until the collection is stored durably.
 - Dates remain inconsistent (`YYYY-MM-DD` from the form, `Date.toString()` in mock data); the dashboard does not show them.
 
 ## 12. Glossary

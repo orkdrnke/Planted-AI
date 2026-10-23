@@ -4,7 +4,7 @@ owner: "Orest Lyubinets"
 reviewers: ["Tech Lead"]
 updated_at: "2026-10-17"
 feature_size: "S"
-ticket: "roadmap step 7"
+ticket: "ux-improve"
 ---
 
 # 0002 — Derive care-tip state from stored tips and generation status
@@ -21,7 +21,7 @@ The dashboard rows, the collection status counts and the plant page all need to 
 
 - AC-02 and AC-04: the status must always match the rows, and the stored-tips rule must hold everywhere.
 - Three consumers (dashboard, status counts, plant page) in different files must not disagree.
-- Roadmap steps 4–5 will store the AI status on the plant record in a database; the rule should not depend on where the data lives.
+- The AI status may later be stored on the plant record in a database; the rule should not depend on where the data lives.
 
 ## Considered options
 

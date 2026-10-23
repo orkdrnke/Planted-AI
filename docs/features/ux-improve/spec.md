@@ -9,7 +9,7 @@ feature_size: "S"
 # Spec — ux-improve
 
 > **Glossary:** [CONTEXT](./CONTEXT.md)
-> **Reference module / docs / channels used:** `docs/idea-brief.md` (§2, §3, §5, §7), `docs/roadmap.md` (step 7), `docs/architecture-map.md`; current plant table page, plant page and plant type read from source.
+> **Reference module / docs / channels used:** `docs/architecture-map.md`; current plant table page, plant page and plant type read from source.
 
 ## 1. Context
 
@@ -19,7 +19,7 @@ Why now: the product is about to gain accounts and a per-user collection that st
 
 The committed approach: turn the plant table page into a dashboard with a small set of essential columns, a short collection status above the table, a helpful empty state for a new collection, and a plant page that opens from a row and shows the full care tips. Details that do not help daily use, such as price, size and amount, move out of the table.
 
-Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders are out of scope (owner decision, idea brief §5).
+Onboarding is a separate feature. Urgent actions and reminders are out of scope (owner decision).
 
 ## 2. Goals
 
@@ -30,9 +30,9 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 
 ## 3. Non-goals
 
-- Onboarding or a changed welcome page — it is a separate roadmap step with its own first-entry rule.
+- Onboarding or a changed welcome page — it is a separate feature with its own first-entry rule.
 - Urgent actions, reminders, notifications and a watering log — watering cannot be computed reliably and the owner moved them out of the first release.
-- Moving the collection to a server or adding accounts — covered by other roadmap steps; this feature must work with whatever holds the collection.
+- Moving the collection to a server or adding accounts — covered by separate work; this feature must work with whatever holds the collection.
 - Search, filtering, sorting and photo features — not needed for a small personal collection in the first release.
 
 ## 4. User stories
@@ -113,7 +113,7 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 
 ### AC-07 (US-03) — authorization
 
-*Verified after roadmap step 4 (per-user collections); not testable earlier.*
+*Verified once per-user collections exist; not testable earlier.*
 
 **Given** a plant that belongs to another gardener's collection
 **When** a gardener tries to open that plant
@@ -177,7 +177,7 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 - [x] Does "number of plants" count entries or the sum of the amount field? Decided 2026-10-17: entries (one row = one plant). — owner: Orest Lyubinets
 - [ ] Before accounts, the starting (seed) plants have no care tips, so by the glossary rule every one counts as failed and the first view reads "N failed". Is seed data in scope, and what is the expected first-open status? Default now: out of scope, left as is, shown as failed. — owner: Orest Lyubinets, due: before sdd:design
 - [x] How is the short watering/light note produced: a separate short value stored with the care tips, or a shortened form of the existing text? Decided in ADR-0001: separate `wateringShort` / `sunlightShort` fields generated with the care tips, at most 40 characters. — owner: Orest Lyubinets
-- [x] Is the dashboard released before or after accounts and per-user collections? Decided 2026-10-17: it may ship before accounts on the current collection holder; AC-07 is verified after roadmap step 4 (this overrides the roadmap's step 4 → step 7 edge). — owner: Orest Lyubinets
+- [x] Is the dashboard released before or after accounts and per-user collections? Decided 2026-10-17: it may ship before accounts on the current collection holder; AC-07 is verified once per-user collections exist. — owner: Orest Lyubinets
 - [ ] The removal dialog's close (X) button is announced in English ("Close", `components/ui/dialog.tsx:75`), against ADR-0003. Hide it with `showCloseButton={false}` (Cancel, Esc and the overlay already close the dialog) or feed a label from `lib/uiStrings.ts`? Deferred from review 2026-10-17 (F5). — owner: Orest Lyubinets, due: before the next UI feature's sdd:review
 
 ## Test plan
@@ -203,7 +203,7 @@ Onboarding (roadmap step 6) is a separate feature. Urgent actions and reminders 
 | AC-06 error | plant page shows one plain failure sentence with a retry action | component | for a failed plant and for a plant with no tips and no generation the same sentence is shown, no technical error text, the plant's details stay visible |
 | AC-06 error | retry action asks for new care tips for this plant | component | activating retry requests care tips for that plant only |
 | AC-07 authorization | unknown plant shows the not-found message | component | a plant page for an identifier not in the collection shows the "plant not found" message with a way back to the dashboard |
-| AC-07 authorization | another gardener's plant looks the same as a missing one | integration (deferred — after roadmap step 4) | the not-found message is identical to the unknown-plant case and the dashboard lists none of that gardener's plants; not written until per-user collections exist |
+| AC-07 authorization | another gardener's plant looks the same as a missing one | integration (deferred — until per-user collections exist) | the not-found message is identical to the unknown-plant case and the dashboard lists none of that gardener's plants; not written until per-user collections exist |
 | AC-08 cross-context | empty collection reports zero plants | unit | every count is zero for an empty collection |
 | AC-09 happy path | plant row keeps all essential information without cutting the short notes | component | name, type, location, watering, light and state label are present; a long name is truncated with the full name available; the short notes are not truncated |
 | AC-09 happy path | dashboard fits a phone-sized screen | e2e-through-UI (manual) | at 360 px wide every plant is readable with no sideways scrolling |

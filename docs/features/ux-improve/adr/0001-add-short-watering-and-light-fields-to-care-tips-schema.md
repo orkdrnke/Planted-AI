@@ -4,7 +4,7 @@ owner: "Orest Lyubinets"
 reviewers: ["Tech Lead"]
 updated_at: "2026-10-17"
 feature_size: "S"
-ticket: "roadmap step 7"
+ticket: "ux-improve"
 ---
 
 # 0001 — Add short watering and light fields to the care-tips schema
@@ -15,7 +15,7 @@ ticket: "roadmap step 7"
 
 ## Context
 
-The dashboard shows a watering and a light note per plant, on a table row and on a 360 px phone card (spec AC-01, AC-09). Today the AI returns `wateringFrequency` and `sunlightNeeds` as free text (`schemas/careTipsSchema.ts`), which can be whole sentences. The dashboard needs 2–4 words; the full text stays on the plant page. The data will later move into a database (roadmap steps 4–5), so the shape chosen now is carried forward.
+The dashboard shows a watering and a light note per plant, on a table row and on a 360 px phone card (spec AC-01, AC-09). Today the AI returns `wateringFrequency` and `sunlightNeeds` as free text (`schemas/careTipsSchema.ts`), which can be whole sentences. The dashboard needs 2–4 words; the full text stays on the plant page. The data may later move into a database, so the shape chosen now is carried forward.
 
 ## Decision drivers
 
@@ -44,7 +44,7 @@ The dashboard shows a watering and a light note per plant, on a table row and on
 - The length limit may not be enforceable by the structured-output feature of the installed `openai` ^6.7.0 and model; this must be verified before relying on a Zod `.max(...)`. If it is unsupported, the limit is enforced by the prompt and the client-side `CareTipsSchema.safeParse`, and an over-long value either fails the generation or is clipped (decided in `tasks`).
 
 **Neutral**
-- With the in-memory store no plant has tips saved before this change, so no fallback is needed now. When the collection moves to a database (roadmap steps 4–5), rows saved without the short fields will need a decision (regenerate or backfill).
+- With the in-memory store no plant has tips saved before this change, so no fallback is needed now. If the collection moves to a database, rows saved without the short fields will need a decision (regenerate or backfill).
 
 ## Links
 

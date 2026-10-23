@@ -21,4 +21,4 @@ updated_at: "2026-10-17"
 ## Out of scope
 
 - Urgent actions, reminders and notifications · future functionality, watering cannot be computed reliably.
-- Onboarding and welcome page · separate roadmap step.
+- Onboarding and welcome page · separate feature.

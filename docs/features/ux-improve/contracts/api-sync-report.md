@@ -40,10 +40,10 @@ Chosen by the owner on 2026-10-17 ("minimal openapi for one route, errors as the
 |---|---|---|
 | URL versioning `/api/v1/...` | `/api/ai-care-guide` | Existing path used by the store |
 | Error envelope `{code, message, details?}` | `{ error, issues? }` | Existing behaviour, not changed in this feature |
-| BearerAuth global | `security: []` | The route has no auth today (architecture-map tech-debt); arrives with roadmap steps 3 and 5 |
+| BearerAuth global | `security: []` | The route has no auth today (architecture-map tech-debt); arrives with future authentication work |
 | `Idempotency-Key` on retriable writes | none | The route is stateless generation; the duplicate-request guard is in the store (known limit) |
 
-These are reconciled when the route moves behind the backend (roadmap step 5, open decision D3).
+These are reconciled when the route moves behind a future backend.
 
 ## Open items
 

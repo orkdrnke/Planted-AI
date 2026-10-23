@@ -129,7 +129,7 @@ The gardener opens a plant from the dashboard, picks remove on its page and is a
 | AC-04 | Flow US-02 → update branch; Flow US-06 → confirm branch | Status always matches the rows |
 | AC-05 | Flow US-03 → stored-tips branch → SCR-03 | |
 | AC-06 | Flow US-03 → failed or none branch → SCR-04 | Includes retry and the generating loop |
-| AC-07 | Flow US-03 → not-in-collection branch → SCR-05 | Verified after roadmap step 4 |
+| AC-07 | Flow US-03 → not-in-collection branch → SCR-05 | Verified once per-user collections exist |
 | AC-08 | Flow US-04 → SCR-02 | |
 | AC-09 | Flow US-05 → phone branch | Cards allowed, truncation of long names |
 | AC-10 | Flow US-05 → keyboard branch | One Tab stop per row or card, Enter opens |

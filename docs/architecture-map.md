@@ -53,7 +53,7 @@ There is no database, no auth and no separate backend service. Plant data lives 
 | Store | `lib/store/plantsStore.ts` | client state + fetch | `lib/store/plantsStore.ts:26` | Plants, add/update/remove, AI generation status |
 | Schemas | `schemas/plantFormSchema.ts`, `schemas/careTipsSchema.ts` | validation | `lib/store/plantsStore.ts:81` | Form contract; care-tips contract shared by client and server |
 | Types | `types/plant.ts`, `types/store.ts` | types | `lib/store/plantsStore.ts` | `TPlant`, `TPlantState` |
-| Mock data | `lib/mockdata.ts` | seed data | `lib/store/plantsStore.ts` | Initial plants (to be removed by the backend work) |
+| Mock data | `lib/mockdata.ts` | seed data | `lib/store/plantsStore.ts` | Initial plants (to be removed once the collection is stored durably) |
 | Helpers | `lib/constants.ts`, `lib/utils.ts`, `lib/careTipsState.ts`, `lib/uiStrings.ts` | utilities | `app/myGarden/page.tsx` | Plant types/dest lists, `cn()`, care-tip state + collection status, Ukrainian UI text |
 | UI kit | `components/ui/` | shadcn primitives | pages | button, card, dialog, form, input, label, navigation-menu, select, sheet, table |
 | App chrome | `components/header.tsx`, `components/headerMenu.tsx` | UI | `app/layout.tsx` | Header and navigation menu |
@@ -98,7 +98,6 @@ There is no database, no auth and no separate backend service. Plant data lives 
 
 - **AI route is unauthenticated and unthrottled** — `app/api/ai-care-guide/route.ts:5-10` accepts any `name` with no max length, and every call spends OpenAI quota; user text goes straight into the prompt (`lib/aiHelpers.ts`). Must be closed before any public access.
 - **Plant ID, AI status and generation all live in the client** — `lib/store/plantsStore.ts:36`, `:39`, `:92`. The duplicate-request guard exists only in the browser, so it does not hold across devices.
-- **Next route handlers beat default `/api` rewrites.** A plain-array `rewrites()` is treated as `afterFiles`, so the existing `app/api/ai-care-guide/route.ts` would shadow a proxy to a future backend (`node_modules/next/dist/lib/load-custom-routes.js:412-417`, `node_modules/next/dist/server/lib/router-utils/resolve-routes.js:57-77`). `next.config.ts` has no rewrites yet.
 - **Form fields are untyped strings** — `price`, `size`, `amount` (`schemas/plantFormSchema.ts`), which will need types in any database schema.
 - **Inconsistent dates** — mock data uses `new Date().toString()` (`lib/mockdata.ts:13`), the form produces `YYYY-MM-DD` (`app/addPlant/page.tsx:164`).
 - **UI defects (also in local `KNOWN_ISSUES.md`):** `key={plant.name}` instead of the id — `app/myGarden/page.tsx:62`; care tips lose their last character — `app/myGarden/page.tsx:66`; typo "Last watred" and `new Date(plant.lastWatered)` on a field nothing sets — `app/myGarden/[id]/page.tsx:183`; a Ukrainian string in the UI — `app/myGarden/[id]/page.tsx:15`; dead `href=""` links on the landing page — `app/page.tsx:33`.
